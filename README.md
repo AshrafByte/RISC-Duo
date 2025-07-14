@@ -1,4 +1,4 @@
-# RISC-Core
+# RISC-Duo
 
 A modular, from-scratch implementation of the **RISC-V** processor architecture in **SystemVerilog**.  
 This project is both a design and learning exercise focused on two key hardware goals:
