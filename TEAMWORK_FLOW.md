@@ -184,15 +184,14 @@ git commit -m "chore: bring files from develop"
 
 ---
 
-## 🧹 10. Clean Up After Merge
-
-Once your PR is merged, you can delete your local branch:
+🧹 10. Clean Up After Merge (When Feature Is Fully Complete)
+Once your pull request (PR) has been merged into develop and you’ve fully finished working on that feature, you can safely delete your local branch:
 
 ```bash
 git branch -d feature/your-branch-name
 ```
 
----
+❗ Only delete your branch after the PR is merged and you're completely done with that feature.
 
 ## ✅ Final Summary
 
