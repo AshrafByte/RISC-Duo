@@ -3,6 +3,7 @@
 This guide will help you collaborate on the **RISC-V processor project** using Git, **without any hooks or setup scripts**. Everything is **manual and beginner-friendly**.
 
 ---
+
 ## 📦 0. Naming Convention for Files
 We follow a naming rule to keep the project organized:
 
@@ -16,6 +17,9 @@ These modules typically instantiate smaller submodules inside them.
 ✅ Core.sv → integrates Datapath.sv and Controller.sv
 
 🔽 Submodules use lowercase names (e.g., alu.sv, mux.sv, reg_file.sv) and are focused on one function only.
+
+---
+
 
 ## 📦 1. Clone the Repository (First Time Only)
 
@@ -172,16 +176,9 @@ Do this:
 
 ---
 
-## 🔄 9. Sync Your Branch (Avoid Conflicts)
+## 🔄 9. Sync Your Branch (Avoid Conflicts By Staying Updated)
 
-Do this **every few days**:
-
-```bash
-git checkout develop
-git pull
-git checkout feature-YourBranchName
-git merge develop
-```
+Do Step 2 **every few days** only for files you need in your branch
 
 ---
 
