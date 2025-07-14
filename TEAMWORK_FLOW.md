@@ -3,6 +3,19 @@
 This guide will help you collaborate on the **RISC-V processor project** using Git, **without any hooks or setup scripts**. Everything is **manual and beginner-friendly**.
 
 ---
+## 📦 0. Naming Convention for Files
+We follow a naming rule to keep the project organized:
+
+Files that start with a capital letter (e.g., Datapath.sv, Core.sv) are top-level modules.
+These modules typically instantiate smaller submodules inside them.
+
+✅ Datapath.sv → contains instances of alu.sv, reg_file.sv, mux.sv, etc.
+
+✅ Controller.sv → wraps main_decoder.sv and alu_control.sv
+
+✅ Core.sv → integrates Datapath.sv and Controller.sv
+
+🔽 Submodules use lowercase names (e.g., alu.sv, mux.sv, reg_file.sv) and are focused on one function only.
 
 ## 📦 1. Clone the Repository (First Time Only)
 
