@@ -1,4 +1,4 @@
-# 🛠️ RISC-Duo Team Workflow Guide (Manual Version)
+# 🛠️ RISC-Duo Team Workflow Guide
 
 This guide will help you collaborate on the **RISC-V processor project** using Git, **without any hooks or setup scripts**. Everything is **manual and beginner-friendly**.
 
