@@ -1,3 +1,4 @@
+
 # 🛠️ RISC-Duo Team Workflow Guide
 
 This guide will help you collaborate on the **RISC-V processor project** using Git, **without any hooks or setup scripts**. Everything is **manual and beginner-friendly**.
@@ -102,6 +103,54 @@ git checkout -b feature/datapath
 
 ---
 
+## 👥 Collaboration on Shared Feature Branches
+
+If multiple teammates are working on the **same feature branch**, use this to avoid conflicts:
+
+### ✅ Option 1: Create Sub-Branches (Recommended)
+
+Each teammate works in their own temporary sub-branch and merges back later.
+
+```bash
+# From develop
+git checkout feature/datapath
+git pull
+
+# Create a personal sub-branch
+git checkout -b feature/datapath-yourname
+
+# Do your work, then commit
+git add .
+git commit -m "feat: add alu"
+
+# Merge updates from main branch
+git checkout feature/datapath
+git pull
+git merge feature/datapath-yourname
+git push
+
+# Optional: delete your sub-branch locally
+git branch -d feature/datapath-yourname
+```
+
+⚠️ Option 2: Work on Shared Branch with Coordination
+If sub-branches are not practical, use strict coordination:
+
+🔸 Before you begin:
+```bash
+git checkout feature/datapath
+git pull
+```
+🔸 After finishing your part:
+```bash
+git add .
+git commit -m "feat: add register file"
+git push origin feature/datapath
+```
+❗ Keep in mind:
+Communicate with teammates to avoid editing the same lines.
+Pull frequently to resolve merge conflicts early.
+
 ## 📄 4. Create New `.sv` Files Manually
 
 You can create files via terminal or your editor:
@@ -185,6 +234,7 @@ git commit -m "chore: bring files from develop"
 ---
 
 ## 🧹 10. Clean Up After Merge (When Feature Is Fully Complete)
+
 Once your pull request (PR) has been merged into develop and you’ve fully finished working on that feature, you can safely delete your local branch:
 
 ```bash
@@ -192,6 +242,8 @@ git branch -d feature/your-branch-name
 ```
 
 ❗ Only delete your branch after the PR is merged and you're completely done with that feature.
+
+---
 
 ## ✅ Final Summary
 
