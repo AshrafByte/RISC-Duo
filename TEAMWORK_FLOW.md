@@ -56,6 +56,9 @@ Example:
 git checkout -b feature-Datapath
 ```
 
+<img width="442" height="553" alt="image" src="https://github.com/user-attachments/assets/b6e12b6f-159f-4e3f-b34c-2bbc0870df69" />
+
+
 ---
 
 ## 📄 4. Create New `.sv` Files Manually
