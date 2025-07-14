@@ -1,0 +1,25 @@
+#!/bin/bash
+
+echo "🔒 [hook] Checking all .sv files for \`default_nettype none..."
+
+# Get all staged .sv files for add/modify/copy (no deletes)
+git diff --cached --name-only --diff-filter=ACM | grep '\.sv$' | while read -r file; do
+    [ -f "$file" ] || continue
+
+    if grep -q '`default_nettype none' "$file"; then
+        echo "✅ $file already contains \`default_nettype none"
+        continue
+    fi
+
+    echo "✏️  Inserting \`default_nettype none in $file"
+
+    # Insert at the top of the file (line 1) + add blank line at line 2
+    sed -i '1i\
+`default_nettype none' "$file"
+    sed -i '2i\\' "$file"
+
+    # Re-add to staging because sed un-stages the file
+    git add "$file"
+done
+
+echo "✅ Pre-commit hook complete."
