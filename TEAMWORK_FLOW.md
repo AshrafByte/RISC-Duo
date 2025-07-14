@@ -19,8 +19,10 @@ cd RISC-Duo
 
 Before starting any new work, you usually update your feature branch with the latest changes from develop:
 
+```bash
 git checkout develop
 git pull
+```
 
 🔹 Only do this if your feature branch depends on new changes or files added in develop.If your feature branch already has everything you need, you can skip this step to avoid unnecessary conflicts.
 
