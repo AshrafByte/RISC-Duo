@@ -23,7 +23,7 @@ Before doing any work, switch to the latest `develop` branch:
 git checkout develop
 git pull
 ```
-
+note: only do this if your feature need any develop branch folder that doesn't exist in your feature branch , otherwise DON'T DO THIS.
 ---
 
 ## 🏷️ 3. Create a Feature Branch
