@@ -15,16 +15,52 @@ cd RISC-Duo
 
 ---
 
-🌿 2. Always Work From the develop Branch (When Needed)
 
-Before starting any new work, you usually update your feature branch with the latest changes from develop:
+### 🌿 2. Always Work From the `develop` Branch (When Needed)
+
+Before starting new work, you **may** want to bring in updates from the `develop` branch.
+But merging the full branch isn’t always needed — **only do it if you actually need files or changes added in `develop`.**
+
+#### ✅ Option A: You need all updates from `develop`
 
 ```bash
 git checkout develop
 git pull
+
+git checkout feature-YourBranch
+git merge develop
 ```
 
-🔹 Only do this if your feature branch depends on new changes or files added in develop.If your feature branch already has everything you need, you can skip this step to avoid unnecessary conflicts.
+> ⚠️ This brings in everything from `develop`. **Be careful** — it might cause conflicts if you don't really need all updates.
+
+---
+
+#### 🔍 Option B: You only need a **specific file or folder**
+
+You can bring only what you need:
+
+```bash
+# From your feature branch
+git checkout feature-YourBranch
+
+# Bring a file (e.g., Top.sv) from develop
+git checkout develop -- single_cycle/Core/Top.sv
+
+# Or bring a whole folder (e.g., Utils)
+git checkout develop -- single_cycle/Utils
+```
+
+After doing this:
+
+```bash
+git add .
+git commit -m "chore: bring Top.sv from develop"
+```
+
+> ⚠️ This avoids unnecessary merges and lets you work only with what your feature needs.
+
+---
+
 
 ## 🏷️ 3. Create a Feature Branch
 
