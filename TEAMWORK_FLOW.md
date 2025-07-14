@@ -15,16 +15,14 @@ cd RISC-Duo
 
 ---
 
-## 🌿 2. Always Work From the `develop` Branch
+🌿 2. Always Work From the develop Branch (When Needed)
 
-Before doing any work, switch to the latest `develop` branch:
+Before starting any new work, you usually update your feature branch with the latest changes from develop:
 
-```bash
 git checkout develop
 git pull
-```
-note: only do this if your feature need any develop branch folder that doesn't exist in your feature branch , otherwise DON'T DO THIS.
----
+
+🔹 Only do this if your feature branch depends on new changes or files added in develop.If your feature branch already has everything you need, you can skip this step to avoid unnecessary conflicts.
 
 ## 🏷️ 3. Create a Feature Branch
 
