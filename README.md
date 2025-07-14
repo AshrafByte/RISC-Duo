@@ -1,41 +1,30 @@
-# RISC-Duo
+# 🧠 RISC-Duo: A RISC-V Processor Implementation
 
-A modular, from-scratch implementation of the **RISC-V** processor architecture in **SystemVerilog**.  
-This project is both a design and learning exercise focused on two key hardware goals:
-
-- **Minimizing area** via a clean **single-cycle CPU design**
-- **Minimizing delay** via a **pipelined implementation**
-
----
-
-## 🎯 Project Focus
-
-This project isn't just about functionality — it's also about learning to **optimize hardware designs**.  
-We explore trade-offs between:
-
-- Area vs. delay
-- Simplicity vs. performance
-- Control complexity vs. datapath reuse
+Welcome to **RISC-Duo**, a SystemVerilog-based implementation of both **Single-Cycle** and **Pipelined** RISC-V processors.  
+This project focuses on practicing architectural tradeoffs:
+- ⏱️ Delay vs ⛓️ Area
+- 🧼 Clean modular design
+- ✅ Collaboration using Git
 
 ---
 
-## 🧱 Directory Structure
+## 📁 Project Structure
 
 ```bash
-single_cycle/
-├── DataPath/            # ALU, Register File, PC logic, etc.
-├── ControlUnit/         # Main Decoder, ALU Control, Control signal logic
-├── Memories/            # Instruction Memory, Data Memory
-├── top.sv               # Top-level integration
-├── program.asm          # RISC-V program (human-readable)
-├── InstructionLoader.sv # Converts asm to machine code
-└── inst.mem             # Machine code to load into instr_mem
+RISC-Duo/
+├── single_cycle/
+│   ├── Core/               # Wraps Datapath & Controller
+│   ├── DataPath/           # ALU, RegFile, PC, etc.
+│   ├── ControlUnit/        # Main decoder & ALU control
+│   ├── Memories/           # instr_mem, data_mem
+│   ├── Utils/              # Mux, Adder, Shifter
+│   ├── Include/            # Shared types_pkg.sv
+│   ├── Top.sv              # Top-level module
+│   ├── program.asm         # Input assembly file
+│   ├── InstructionLoader.sv
+│   └── inst.mem            # Machine code memory (auto-gen)
+├── pipelined/              # Placeholder for pipeline version
+├── .gitignore
+└── README.md               # ← You're here
 ```
 
-```bash
-main/               ← Stable, tested code
-develop/            ← Working development state
-feature/datapath-X/ ← Submodules of datapath (e.g., ALU, PC, Register File)
-feature/control-X/  ← Control logic modules
-feature/memories/   ← Data & instruction memory
-```
