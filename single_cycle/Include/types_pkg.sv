@@ -3,6 +3,7 @@ package types_pkg;
 
   // Standard word width
   parameter int XLEN = 32;
+  parameter int SHIFT_AMOUNT = $clog2(XLEN);
 
   // Convenience typedefs
   typedef logic [XLEN-1:0] word_t;
