@@ -4,10 +4,10 @@ module DataPath (
     input logic clk,
     input logic Reset,
     // from Register file to ALU
-    input logic [XLEN-1:0] read_data1,
-    input logic [XLEN-1:0] read_data2,
+    input logic [XLEN-1:0] RD1,
+    input logic [XLEN-1:0] RD2,
     // from instruction memory to extension unit
-    input logic [XLEN-1:0] instruction,
+    input logic [XLEN-1:0] Instr,
     // Control signals
     input logic PCSrc,
     input logic ResultSrc,
@@ -16,16 +16,24 @@ module DataPath (
     input logic [1:0]ImmSrc,
     input logic RegWrite,
     input logic RegSrc,
+    // input form integration with memory
+    input logic [XLEN-1:0] Result,
+
     output logic [XLEN-1:0] PC,
     output logic Zero,
+    // for the data memory
     output logic [XLEN-1:0] ALUResult,
     output logic [XLEN-1:0] WriteData
+
     );
     // internal signals for PC
     logic [XLEN-1:0] PCNext;
     logic [XLEN-1:0] ImmExt;
     logic [XLEN-1:0] PCTarget;
     logic [XLEN-1:0] PCPlus4;
+    wire [XLEN-1:0] PCReg;
+
+
 
     // Immediate Extension , ask about the size of the immediate !!
     sign_ext #(.WIDTH_IN(16), .WIDTH_OUT(XLEN)) imm_ext (
@@ -33,18 +41,18 @@ module DataPath (
         .out(ImmExt)
     );
 
-    // PC Logic
+    // --- PC Logic ----
     
     // PC target
     adder pc_target_adder (
-        .a(PC_reg),
+        .a(PCReg),
         .b(ImmExt),
         .sum(PCTarget)
     );
 
     // PC Plus 4
     adder pc_adder (
-        .a(PC_reg),
+        .a(PCReg),
         .b(4),
         .sum(PCPlus4)
     );
@@ -58,19 +66,33 @@ module DataPath (
         .sel(PCSrc),
         .out(PCNext)
     );
-wire PC_regp;
-assign PC = PC_reg;
+
     // PC register instance
     pc PC_reg (
         .PCNext(PCNext),
         .clk(clk),
-        .pc(PC_regp)
+        .pc(PCReg)
     );
+
+    assign PC = PCReg;
+
+    // --- Register File instance ----
+    regFile RegisterFile (
+        .read_reg1(Instr[19:15]),
+        .read_reg2(Instr[24:20]),
+        .write_reg(instr[11:7]),
+        .write_data(Result),
+        .writeEnable(RegWrite),
+        .read_data1(RD1),
+        .read_data2(RD2)
+    );
+
+    // --- ALU Logic ----
 
     // ALU Mux
     word_t alu_mux_in [2];
     logic [XLEN-1:0] SrcB;
-    assign alu_mux_in[0] = read_data2;
+    assign alu_mux_in[0] = RD2;
     assign alu_mux_in[1] = ImmExt;
     mux #(.SEL_WIDTH(1)) mux_b (
         .in(alu_mux_in),
@@ -82,14 +104,14 @@ assign PC = PC_reg;
 
     // ALU instance
     alu ALU (
-        .a(read_data1),
+        .a(RD1),
         .b(SrcB),
         .control(ALUControl),
         .result(ALUResult),
         .zero(Zero)
     );
     
-    assign WriteData = read_data2;
+    assign WriteData = RD2;
 
 
     
