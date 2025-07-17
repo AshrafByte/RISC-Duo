@@ -15,7 +15,6 @@ module DataPath (
     input logic ALUSrc,
     input logic [1:0] ImmSrc,
     input logic RegWrite,
-    input logic RegSrc,
     // input form integration with memory
     input logic [XLEN-1:0] ReadData,
     // otuput
