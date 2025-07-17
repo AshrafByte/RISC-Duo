@@ -10,15 +10,15 @@ module DataPath (
     input logic [XLEN-1:0] Instr,
     // Control signals
     input logic PCSrc,
-    input logic ResultSrc,
+    input logic [1:0] ResultSrc,
     input logic [3:0] ALUControl,
     input logic ALUSrc,
-    input logic [1:0]ImmSrc,
+    input logic [1:0] ImmSrc,
     input logic RegWrite,
     input logic RegSrc,
     // input form integration with memory
-    input logic [XLEN-1:0] Result,
-
+    input logic [XLEN-1:0] ReadData,
+    // otuput
     output logic [XLEN-1:0] PC,
     output logic Zero,
     // for the data memory
@@ -32,14 +32,12 @@ module DataPath (
     logic [XLEN-1:0] PCTarget;
     logic [XLEN-1:0] PCPlus4;
     wire [XLEN-1:0] PCReg;
+    // internal signals for the datapath
+    logic [XLEN-1:0] Result;
 
 
 
-    // Immediate Extension , ask about the size of the immediate !!
-    sign_ext #(.WIDTH_IN(16), .WIDTH_OUT(XLEN)) imm_ext (
-        .in(instruction[15:0]),
-        .out(ImmExt)
-    );
+
 
     // --- PC Logic ----
     
@@ -87,6 +85,27 @@ module DataPath (
         .read_data2(RD2)
     );
 
+    // ----Extenstion-----
+    // extension mux
+    word_t imm_mux_in [4];
+    sign_ext #(.WIDTH_IN(12), .WIDTH_OUT(XLEN)) imm_ext00 (
+        .in(Instr[31:20]),
+        .out(imm_mux_in[0])
+    );
+    sign_ext #(.WIDTH_IN(12), .WIDTH_OUT(XLEN)) imm_ext01 (
+        .in({Instr[31:25],Instr[11:7]}),
+        .out(imm_mux_in[1])
+    );
+    assign imm_mux_in[2]={{20{Instr[31]}}, Instr[7],Instr[30:25],Instr[11:8],1'b0}; // B-type
+    assign imm_mux_in[3]={{12{Instr[31]}}, Instr[19:12],Instr[20],Instr[30:21],1'b0}; // j-type
+
+    mux #(.SEL_WIDTH(2)) imm_mux (
+        .in(imm_mux_in),
+        .sel(ImmSrc),
+        .out(ImmExt)
+    );
+
+
     // --- ALU Logic ----
 
     // ALU Mux
@@ -112,6 +131,19 @@ module DataPath (
     );
     
     assign WriteData = RD2;
+
+    // Result Mux
+    word_t result_mux_in [3];
+    assign result_mux_in[0] = ALUResult;
+    assign result_mux_in[1] = ReadData; 
+    assign result_mux_in[2] = PCPlus4; 
+    mux #(.SEL_WIDTH(2)) result_mux (
+        .in(result_mux_in),
+        .sel(ResultSrc),
+        .out(Result)
+    );
+
+
 
 
     
