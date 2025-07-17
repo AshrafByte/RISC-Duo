@@ -37,14 +37,14 @@ module DataPath (
     
     // PC target
     adder pc_target_adder (
-        .a(PC),
+        .a(PC_reg),
         .b(ImmExt),
         .sum(PCTarget)
     );
 
     // PC Plus 4
     adder pc_adder (
-        .a(PC),
+        .a(PC_reg),
         .b(4),
         .sum(PCPlus4)
     );
@@ -58,12 +58,13 @@ module DataPath (
         .sel(PCSrc),
         .out(PCNext)
     );
-
+wire PC_regp;
+assign PC = PC_reg;
     // PC register instance
     pc PC_reg (
         .PCNext(PCNext),
         .clk(clk),
-        .pc(PC)
+        .pc(PC_regp)
     );
 
     // ALU Mux
