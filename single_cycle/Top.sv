@@ -7,7 +7,7 @@ module Top (
  // === Internal Wires ===
     word_t PC;
     word_t WriteData;
-    word_t DataAdr;
+    address_t DataAdr;
     word_t ReadData;
     word_t Instr;
     logic MemWrite;
