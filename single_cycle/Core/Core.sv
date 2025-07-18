@@ -9,7 +9,8 @@ module Core(
 
     output word_t   PC,
     output word_t   WriteData,
-    output word_t   ALUResult
+    output word_t   ALUResult,
+    output logic    MemWrite
 );
 
     logic               Zero;
@@ -60,5 +61,8 @@ module Core(
         
         .control_signals(cs)
     );
+
+    ////////////////////
+    assign MemWrite = cs.MemWrite;
 
 endmodule
