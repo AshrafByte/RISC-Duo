@@ -1,4 +1,5 @@
 //
+// `default_nettype none
 import types_pkg::*;
 module sign_ext #(parameter int WIDTI_IN = 16, 
                    parameter int WIDTI_OUT = 32) (

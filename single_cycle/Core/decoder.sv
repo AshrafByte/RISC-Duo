@@ -1,4 +1,5 @@
 // decoder.sv
+// `default_nettype none
 import types_pkg::*;
 
 module decoder (
