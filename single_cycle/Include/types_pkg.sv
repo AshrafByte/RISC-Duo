@@ -97,7 +97,7 @@ package types_pkg;
     // =============================================================
 
     // Specific ALU operations (output of alu_control)
-    typedef enum logic [3:0] {
+    typedef enum reg [3:0] {
         ALU_ADD   = 4'b0000,
         ALU_SUB   = 4'b0001,
         ALU_AND   = 4'b0010,

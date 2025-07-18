@@ -17,14 +17,14 @@ module Top (
  data_mem DataMemory (
     .clk(clk),
     .write_enable(MemWrite),
-    .data_address(DataAdr),
+    .data_address(DataAdr[ADDR_WIDTH-1:0]),  // Use only lower address bits
     .write_data(WriteData),
     .read_data(ReadData)
  );
 
  instr_mem InstructionMemory (
     .clk(clk),
-    .address(PC),
+    .address(PC[ADDR_WIDTH-1:0]),  // Use only lower address bits
     .instruction(Instr)
  );
 

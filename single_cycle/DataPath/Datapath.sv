@@ -101,6 +101,7 @@ module DataPath (
     word_t RD1, RD2;
 
     regFile RegisterFile (
+        .clk         (clk),
         .read_reg1   (rs1),
         .read_reg2   (rs2),
         .write_reg   (rd),
