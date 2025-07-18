@@ -40,7 +40,7 @@ module DataPath (
     word_t PCNext, ImmExt, PCTarget, PCPlus4, Result, SrcB, PCReg;
     word_t imm_mux_in    [4];
     word_t alu_mux_in    [2];
-    word_t result_mux_in [3];
+    word_t result_mux_in [4];
     word_t pc_mux_in     [2];
 
     // ==================================================

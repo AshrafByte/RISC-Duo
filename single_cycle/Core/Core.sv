@@ -17,6 +17,7 @@ module Core(
     logic               Zero;
     decoded_instr_t     di;
     control_signals_t   cs;
+    aluop_e             ALUControl;
 
     decoder decoder_instance (
         .Instr(Instr),
@@ -41,7 +42,7 @@ module Core(
 
         .PCSrc(cs.PCSrc),
         .ResultSrc(cs.ResultSrc),
-        .ALUControl(cs.ALUControl),
+        .ALUControl(ALUControl),
         .ALUSrc(cs.ALUSrc),
         .ImmSrc(cs.ImmSrc),
         .RegWrite(cs.RegWrite),
@@ -60,7 +61,8 @@ module Core(
         .funct7(di.funct7),
         .op(di.op),
         
-        .control_signals(cs)
+        .control_signals(cs),
+        .ALUControl(ALUControl)
     );
 
     ////////////////////

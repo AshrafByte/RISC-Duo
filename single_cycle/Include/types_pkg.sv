@@ -161,7 +161,6 @@ package types_pkg;
         logic        ALUSrc;
         immsrc_e     ImmSrc;
         logic        RegWrite;
-        aluop_e      ALUControl;
     } control_signals_t;
 
 endpackage
