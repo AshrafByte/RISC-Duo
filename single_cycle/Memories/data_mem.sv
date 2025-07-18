@@ -1,15 +1,16 @@
 `default_nettype none
 import types_pkg::*;
 
-module data_mem(clk, write_enable, data_address, write_data, read_data);
+module data_mem(
+        input logic clk, write_enable,
+        input address_t data_address,
+        input word_t write_data,
+        
+        output word_t read_data
+    );
 
-    input logic clk, write_enable;
-    input logic [ADDR_WIDTH - 1 :0] data_address;
-    input word_t write_data;
 
-    output word_t read_data;
-
-    word_t data_memory [MEM_SIZE - 1 :0];
+    word_t data_memory [MEM_SIZE];
 
     always_ff@(posedge clk)begin
         if(write_enable) data_memory[data_address] <= write_data;

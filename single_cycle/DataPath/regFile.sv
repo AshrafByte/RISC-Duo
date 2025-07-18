@@ -10,7 +10,7 @@ module regFile (
     output word_t       read_data2    // rs2 value
 );
 
-    word_t registers [REG_COUNT-1:0];
+    word_t registers [REG_COUNT];
 
     // Combinational read
     assign read_data1 = (read_reg1 == 5'd0) ? '0 : registers[read_reg1];

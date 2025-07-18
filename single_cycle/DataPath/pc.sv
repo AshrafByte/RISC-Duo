@@ -2,10 +2,10 @@
 import types_pkg::*;
 
 module pc (
-    input  logic                    clk,
-    input  logic                    reset,     
-    input  logic [ADDR_WIDTH-1:0]   PCNext,
-    output logic [ADDR_WIDTH-1:0]   pc
+    input  logic            clk,
+    input  logic            reset,     
+    input  address_t        PCNext,
+    output address_t        pc
 );
 
     always_ff @(posedge clk) begin

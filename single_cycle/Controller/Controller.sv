@@ -16,7 +16,8 @@ module Controller (
     main_decoder main_decoder_instance (
         .Zero(Zero),
         .op(op),
-        .ALUOp(),
+
+        .ALUOp(ALUOp),
         .control_signals(control_signals)
     );
      
@@ -24,6 +25,7 @@ module Controller (
         .ALUOp(ALUOp),
         .funct3(funct3),
         .funct7(funct7),
+        
         .ALUControl(control_signals.ALUControl)
     );
     

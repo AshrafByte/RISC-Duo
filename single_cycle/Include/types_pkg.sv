@@ -4,11 +4,12 @@ package types_pkg;
     // =============================================================
     // Core Configuration
     // =============================================================
-    parameter int XLEN         = 32;
-    parameter int SHIFT_AMOUNT = $clog2(XLEN);
-    parameter int ADDR_WIDTH   = 9;
-    parameter int MEM_SIZE     = 2 ** ADDR_WIDTH;
-    parameter int REG_COUNT    = 32;
+    parameter int XLEN              = 32;
+    parameter int SHIFT_AMOUNT      = $clog2(XLEN);
+    parameter int ADDR_WIDTH        = 9;
+    parameter int MEM_SIZE          = 2 ** ADDR_WIDTH;
+    parameter int REG_ADDR_WIDTH    = 5;
+    parameter int REG_COUNT         = 2 ** REG_ADDR_WIDTH;  // 32 registers
 
     // =============================================================
     // Basic Typedefs
@@ -16,6 +17,8 @@ package types_pkg;
     typedef logic [XLEN-1:0]                word_t;
     typedef logic signed [XLEN-1:0]         signed_word_t;
     typedef logic [$clog2(REG_COUNT)-1:0]   reg_addr_t;
+    typedef logic [ADDR_WIDTH-1:0]          address_t;
+
 
     // =============================================================
     // Instruction Bit Field Ranges (RV32I)

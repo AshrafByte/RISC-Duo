@@ -4,7 +4,6 @@ import types_pkg::*;
 
 module decoder (
     input  word_t           Instr,
-    
     output decoded_instr_t  decoded_instr 
 );
 
@@ -16,7 +15,7 @@ module decoder (
         decoded_instr.funct3    = Instr[FUNCT3_MSB:FUNCT3_LSB];
         decoded_instr.rs1       = Instr[RS1_MSB:RS1_LSB];
         decoded_instr.rs2       = Instr[RS2_MSB:RS2_LSB];
-        decoded_instr.funct7 =   Instr[FUNCT7_MSB:FUNCT7_LSB];
+        decoded_instr.funct7    = Instr[FUNCT7_MSB:FUNCT7_LSB];
 
         // Immediate raw fields (before sign-extension)
         decoded_instr.imm_i_raw = Instr[IMM_I_MSB:IMM_I_LSB];
