@@ -27,7 +27,7 @@ module decoder (
 
         decoded_instr.imm_b_raw = {
             Instr[IMM_B_12_BIT],
-            Instr[IMM_B_11_BIT]
+            Instr[IMM_B_11_BIT],
             Instr[IMM_B_10_5_MSB:IMM_B_10_5_LSB],
             Instr[IMM_B_4_1_MSB:IMM_B_4_1_LSB],
             1'b0
