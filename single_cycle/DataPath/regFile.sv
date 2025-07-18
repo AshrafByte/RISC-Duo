@@ -17,9 +17,9 @@ module regFile (
     assign read_data1 = (read_reg1 == 5'd0) ? '0 : registers[read_reg1];
     assign read_data2 = (read_reg2 == 5'd0) ? '0 : registers[read_reg2];
 
-    always_comb @(*) begin
-        if (writeEnable && write_reg != 5'd0)
-            registers[write_reg] = write_data;
+    always_ff @(*) begin
+        if (writeEnable && (write_reg != 5'd0))
+            registers[write_reg] <= write_data;
     end
 
 endmodule
