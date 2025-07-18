@@ -36,7 +36,7 @@ module Top (
 
     .PC(PC),
     .WriteData(WriteData),
-    .AluResult(DataAdr),
+    .ALUResult(DataAdr),
     .MemWrite(MemWrite)
  );
 endmodule
