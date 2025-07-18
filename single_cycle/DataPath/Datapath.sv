@@ -1,4 +1,4 @@
-`default_nettype none
+
 import types_pkg::*;
 module DataPath (
     input  logic        clk,
