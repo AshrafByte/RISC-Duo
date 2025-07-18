@@ -1,102 +1,55 @@
 `default_nettype none
 import types_pkg::*;
+
 module DataPath (
-    input logic clk,
-    input logic Reset,
-    // from Register file to ALU
-    input logic [XLEN-1:0] RD1,
-    input logic [XLEN-1:0] RD2,
-    // from instruction memory to extension unit
-    input logic [XLEN-1:0] Instr,
-    // Control signals
-    input logic PCSrc,
-    input logic [1:0] ResultSrc,
-    input logic [3:0] ALUControl,
-    input logic ALUSrc,
-    input logic [1:0] ImmSrc,
-    input logic RegWrite,
-    // input form integration with memory
-    input logic [XLEN-1:0] ReadData,
-    // otuput
-    output logic [XLEN-1:0] PC,
-    output logic Zero,
-    // for the data memory
-    output logic [XLEN-1:0] ALUResult,
-    output logic [XLEN-1:0] WriteData
+    input  logic        clk,
+    input  logic        reset,
 
-    );
-    // internal signals for PC
-    logic [XLEN-1:0] PCNext;
-    logic [XLEN-1:0] ImmExt;
-    logic [XLEN-1:0] PCTarget;
-    logic [XLEN-1:0] PCPlus4;
-    wire [XLEN-1:0] PCReg;
-    // internal signals for the datapath
-    logic [XLEN-1:0] Result;
+    // === Register Addresses ===
+    input  reg_addr_t   rs1,
+    input  reg_addr_t   rs2,
+    input  reg_addr_t   rd,
 
+    // === Immediate Inputs (Raw) ===
+    input  imm_i_raw_t  imm_i_raw,
+    input  imm_s_raw_t  imm_s_raw,
+    input  imm_b_raw_t  imm_b_raw,
+    input  imm_j_raw_t  imm_j_raw,
 
+    // === Control Signals ===
+    input  logic        PCSrc,
+    input  resultsrc_e  ResultSrc,
+    input  aluop_e      ALUControl,
+    input  logic        ALUSrc,
+    input  immsrc_e     ImmSrc,
+    input  logic        RegWrite,
 
+    // === Memory Interface ===
+    input  word_t       ReadData,
 
+    // === Outputs ===
+    output word_t       PC,
+    output logic        Zero,
+    output word_t       ALUResult,
+    output word_t       WriteData
+);
 
-    // --- PC Logic ----
-    
-    // PC target
-    adder pc_target_adder (
-        .a(PCReg),
-        .b(ImmExt),
-        .sum(PCTarget)
-    );
+    // ==================================================
+    // Internal Wires
+    // ==================================================
+    word_t PCNext, ImmExt, PCTarget, PCPlus4, Result, SrcB, PCReg;
+    word_t imm_mux_in    [4];
+    word_t alu_mux_in    [2];
+    word_t result_mux_in [3];
+    word_t pc_mux_in     [2];
 
-    // PC Plus 4
-    adder pc_adder (
-        .a(PCReg),
-        .b(4),
-        .sum(PCPlus4)
-    );
-    // PC Mux
-    word_t pc_mux_in [2];
-    assign pc_mux_in[0] = PCPlus4; // PC + 4
-    assign pc_mux_in[1] = PCTarget; // Target address for branch
-
-    mux #(.SEL_WIDTH(1)) pc_mux (
-        .in(pc_mux_in),
-        .sel(PCSrc),
-        .out(PCNext)
-    );
-
-    // PC register instance
-    pc PC_reg (
-        .PCNext(PCNext),
-        .clk(clk),
-        .pc(PCReg)
-    );
-
-    assign PC = PCReg;
-
-    // --- Register File instance ----
-    regFile RegisterFile (
-        .read_reg1(Instr[19:15]),
-        .read_reg2(Instr[24:20]),
-        .write_reg(instr[11:7]),
-        .write_data(Result),
-        .writeEnable(RegWrite),
-        .read_data1(RD1),
-        .read_data2(RD2)
-    );
-
-    // ----Extenstion-----
-    // extension mux
-    word_t imm_mux_in [4];
-    sign_ext #(.WIDTH_IN(12), .WIDTH_OUT(XLEN)) imm_ext00 (
-        .in(Instr[31:20]),
-        .out(imm_mux_in[0])
-    );
-    sign_ext #(.WIDTH_IN(12), .WIDTH_OUT(XLEN)) imm_ext01 (
-        .in({Instr[31:25],Instr[11:7]}),
-        .out(imm_mux_in[1])
-    );
-    assign imm_mux_in[2]={{20{Instr[31]}}, Instr[7],Instr[30:25],Instr[11:8],1'b0}; // B-type
-    assign imm_mux_in[3]={{12{Instr[31]}}, Instr[19:12],Instr[20],Instr[30:21],1'b0}; // j-type
+    // ==================================================
+    // Sign-extension of raw immediates
+    // ==================================================
+    assign imm_mux_in[IMM_I] = {{20{imm_i_raw[11]}}, imm_i_raw};
+    assign imm_mux_in[IMM_S] = {{20{imm_s_raw[11]}}, imm_s_raw};
+    assign imm_mux_in[IMM_B] = {{19{imm_b_raw[12]}}, imm_b_raw};
+    assign imm_mux_in[IMM_J] = {{11{imm_j_raw[20]}}, imm_j_raw};
 
     mux #(.SEL_WIDTH(2)) imm_mux (
         .in(imm_mux_in),
@@ -104,56 +57,91 @@ module DataPath (
         .out(ImmExt)
     );
 
+    // ==================================================
+    // Program Counter (PC) Logic
+    // ==================================================
 
-    // --- ALU Logic ----
+    // PC + 4
+    adder pc_adder (
+        .a(PCReg),
+        .b(32'd4),
+        .sum(PCPlus4)
+    );
 
-    // ALU Mux
-    word_t alu_mux_in [2];
-    logic [XLEN-1:0] SrcB;
+    // PC + Immediate (for branches/jumps)
+    adder pc_target_adder (
+        .a(PCReg),
+        .b(ImmExt),
+        .sum(PCTarget)
+    );
+
+    // Select next PC value
+    assign pc_mux_in[0] = PCPlus4;
+    assign pc_mux_in[1] = PCTarget;
+
+    mux #(.SEL_WIDTH(1)) pc_mux (
+        .in(pc_mux_in),
+        .sel(PCSrc),
+        .out(PCNext)
+    );
+
+    // PC Register
+    pc PC_reg (
+        .clk(clk),
+        .reset(reset),
+        .PCNext(PCNext),
+        .pc(PCReg)
+    );
+
+    assign PC = PCReg;
+
+    // ==================================================
+    // Register File
+    // ==================================================
+    word_t RD1, RD2;
+
+    regFile RegisterFile (
+        .read_reg1   (rs1),
+        .read_reg2   (rs2),
+        .write_reg   (rd),
+        .write_data  (Result),
+        .writeEnable (RegWrite),
+        .read_data1  (RD1),
+        .read_data2  (RD2)
+    );
+
+    assign WriteData = RD2;
+
+    // ==================================================
+    // ALU and Operand MUX
+    // ==================================================
     assign alu_mux_in[0] = RD2;
     assign alu_mux_in[1] = ImmExt;
+
     mux #(.SEL_WIDTH(1)) mux_b (
-        .in(alu_mux_in),
+        .in (alu_mux_in),
         .sel(ALUSrc),
         .out(SrcB)
     );
- 
 
-
-    // ALU instance
     alu ALU (
-        .a(RD1),
-        .b(SrcB),
-        .control(ALUControl),
-        .result(ALUResult),
-        .zero(Zero)
+        .a       (RD1),
+        .b       (SrcB),
+        .control (ALUControl),
+        .result  (ALUResult),
+        .zero    (Zero)
     );
-    
-    assign WriteData = RD2;
 
-    // Result Mux
-    word_t result_mux_in [3];
-    assign result_mux_in[0] = ALUResult;
-    assign result_mux_in[1] = ReadData; 
-    assign result_mux_in[2] = PCPlus4; 
+    // ==================================================
+    // Write-Back Result MUX
+    // ==================================================
+    assign result_mux_in[RESULT_ALU]  = ALUResult;
+    assign result_mux_in[RESULT_MEM]  = ReadData;
+    assign result_mux_in[RESULT_JUMP] = PCPlus4;
+
     mux #(.SEL_WIDTH(2)) result_mux (
-        .in(result_mux_in),
+        .in (result_mux_in),
         .sel(ResultSrc),
         .out(Result)
     );
-
-
-
-
-    
-
-
-
-
-    
-    
-    
-    
-    
 endmodule
-
