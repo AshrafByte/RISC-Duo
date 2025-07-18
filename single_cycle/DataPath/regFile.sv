@@ -1,27 +1,24 @@
 import types_pkg::*;
-// parameter XLEN = 32;
+
 module regFile (
-    // input logic clk,             // not needed in single cycle
-    input logic [4:0] read_reg1,    // rs
-    input logic [4:0] read_reg2,    // rt
-    input logic [4:0] write_reg,    // rd or rt
-    input logic [31:0] write_data,  //din
-    input logic writeEnable,        //we
-    output logic [31:0] read_data1,
-    output logic [31:0] read_data2
+    input  reg_addr_t   read_reg1,    // rs1
+    input  reg_addr_t   read_reg2,    // rs2
+    input  reg_addr_t   write_reg,    // rd
+    input  word_t       write_data,   // data to write
+    input  logic        writeEnable,  // write enable
+    output word_t       read_data1,   // rs1 value
+    output word_t       read_data2    // rs2 value
 );
 
-    reg [XLEN:0] registers [31:0];
+    word_t registers [31:0];
 
-    // Write logic
-    always @(*) begin
-        if (writeEnable && write_reg != 5'b0) begin
+    // Combinational read
+    assign read_data1 = (read_reg1 == 5'd0) ? '0 : registers[read_reg1];
+    assign read_data2 = (read_reg2 == 5'd0) ? '0 : registers[read_reg2];
+
+    always_comb @(*) begin
+        if (writeEnable && write_reg != 5'd0)
             registers[write_reg] = write_data;
-        end
-        else if (!writeEnable) begin
-            read_data1 = registers[read_reg1];
-            read_data2 = registers[read_reg2];
-        end
     end
 
 endmodule
