@@ -1,9 +1,21 @@
 `default_nettype none
 import types_pkg::*;
+// ALU control signals , to not have extra registers for storing the enum
+localparam ADD = 4'b0000;
+localparam SUB = 4'b0001;
+localparam AND = 4'b0010;
+localparam OR  = 4'b0011;
+localparam XOR = 4'b0100;
+localparam SRL = 4'b0101;
+localparam SRA = 4'b0110;
+localparam SLL = 4'b0111;
+localparam SLT = 4'b1000;
+localparam SLTU= 4'b1001;
+
 module alu (
     input logic [XLEN-1:0] a,
     input  logic [XLEN-1:0] b,
-    input  alu_control_t     control,
+    input  logic [3:0] control,
     output logic [XLEN-1:0] result,
     output logic            zero
 );

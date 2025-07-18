@@ -2,3 +2,115 @@
 import types_pkg::*;
 
 
+module main_decoder (
+    input  logic        Zero,
+    input  opcode_e     op,
+    
+    output logic        PCSrc,
+    output resultsrc_e  ResultSrc,
+    output logic        MemWrite,
+    output logic        ALUSrc,
+    output immsrc_e     ImmSrc,
+    output logic        RegWrite,
+    output aluop_type_e ALUOp
+);
+    always_comb begin
+        
+        setControlSignals(
+            .pcsrc(0),
+            .resultsrc(RESULT_ALU),
+            .memwrite(0),
+            .alusrc(0),
+            .immsrc(IMM_I),
+            .regwrite(0),
+            .aluop(ALUOP_OTHER)
+        );
+
+        unique case (op)
+            OP_S_TYPE: setControlSignals(
+                .pcsrc(0),
+                .resultsrc(RESULT_ALU),
+                .memwrite(1),
+                .alusrc(1),
+                .immsrc(IMM_S),
+                .regwrite(0),
+                .aluop(ALUOP_LUI)
+            );
+
+            OP_B_TYPE: setControlSignals(
+                .pcsrc(Zero),
+                .resultsrc(RESULT_ALU),
+                .memwrite(0),
+                .alusrc(0),
+                .immsrc(IMM_B),
+                .regwrite(0),
+                .aluop(ALUOP_BRANCH)
+            );
+
+            OP_J_TYPE: setControlSignals(
+                .pcsrc(1),
+                .resultsrc(RESULT_JUMP),
+                .memwrite(0),
+                .alusrc(1),
+                .immsrc(IMM_J),
+                .regwrite(1),
+                .aluop(ALUOP_LUI)
+            );
+
+            OP_R_TYPE: setControlSignals(
+                .pcsrc(0),
+                .resultsrc(RESULT_ALU),
+                .memwrite(0),
+                .alusrc(0),
+                .immsrc(IMM_I),
+                .regwrite(1),
+                .aluop(ALUOP_R_OR_I_TYPE)
+            );
+
+            OP_I_TYPE_ARITH : setControlSignals(
+                .pcsrc(0),
+                .resultsrc(RESULT_ALU),
+                .memwrite(0),
+                .alusrc(1),
+                .immsrc(IMM_I),
+                .regwrite(1),
+                .aluop(ALUOP_R_OR_I_TYPE)      
+            );
+
+            OP_I_TYPE_LOAD : setControlSignals(
+                .pcsrc(0),
+                .resultsrc(RESULT_MEM),
+                .memwrite(0),
+                .alusrc(1),
+                .immsrc(IMM_I),
+                .regwrite(1),
+                .aluop(ALUOP_LUI)
+            );
+
+            default: ; // Do nothing
+        endcase
+
+    end
+
+
+    function automatic void setControlSignals(
+            input logic        pcsrc,
+            input resultsrc_e  resultsrc,
+            input logic        memwrite,
+            input logic        alusrc,
+            input immsrc_e     immsrc,
+            input logic        regwrite,
+            input aluop_type_e aluop
+        );
+
+        PCSrc      = pcsrc;
+        ResultSrc  = resultsrc;
+        MemWrite   = memwrite;
+        ALUSrc     = alusrc;
+        ImmSrc     = immsrc;
+        RegWrite   = regwrite;
+        ALUOp      = aluop;
+        
+    endfunction : setControlSignals 
+
+endmodule
