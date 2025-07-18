@@ -11,7 +11,7 @@ module data_mem(clk, write_enable, data_address, write_data, read_data);
 
     word_t data_memory [MEM_SIZE - 1 :0];
 
-    always@(posedge clk)begin
+    always_ff@(posedge clk)begin
         if(write_enable) data_memory[data_address] <= write_data;
         read_data <= data_memory[data_address];
     end

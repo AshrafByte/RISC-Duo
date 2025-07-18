@@ -9,10 +9,10 @@ module instr_mem(address, instruction);
     output word_t instruction;
 
     //internal memory, 512 location. Each location is of 32 bit width
-    word_t memory [MEM_SIZE - 1 :0];
+    word_t memory [MEM_SIZE - 1:0];
 
     //decoding the instruction
-    always@(*)begin
+    always_comb@(*)begin
         instruction = memory[address];
     end
 endmodule
