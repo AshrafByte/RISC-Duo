@@ -12,6 +12,11 @@ module instr_mem(
     //internal memory, 512 location. Each location is of 32 bit width
     word_t memory [MEM_SIZE];
 
+    // Initialize memory from file
+    initial begin
+        $readmemh("inst.mem", memory);
+    end
+
     //decoding the instruction
     always_ff@(posedge clk)begin
         instruction <= memory[address];
