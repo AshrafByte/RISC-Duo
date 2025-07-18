@@ -18,16 +18,7 @@ module Core(
 
     decoder decoder_instance (
         .Instr(Instr),
-        .op(di.op),
-        .rd(di.rd),
-        .rs1(di.rs1),
-        .rs2(di.rs2),
-        .funct3(di.funct3),
-        .funct7(di.funct7),
-        .imm_i_raw(di.imm_i_raw),
-        .imm_s_raw(di.imm_s_raw),
-        .imm_b_raw(di.imm_b_raw),
-        .imm_j_raw(di.imm_j_raw)
+        .decoded_instr(di)
     );
     //////////////////////////////////////////////
     
@@ -36,19 +27,23 @@ module Core(
     DataPath DataPath_instance (
         .clk(clk),
         .reset(reset),
+
         .rs1(di.rs1),
         .rs2(di.rs2),
         .rd(di.rd),
+
         .imm_i_raw(di.imm_i_raw),
         .imm_s_raw(di.imm_s_raw),
         .imm_b_raw(di.imm_b_raw),
         .imm_j_raw(di.imm_j_raw),
+
         .PCSrc(cs.PCSrc),
         .ResultSrc(cs.ResultSrc),
         .ALUControl(cs.ALUControl),
         .ALUSrc(cs.ALUSrc),
         .ImmSrc(cs.ImmSrc),
         .RegWrite(cs.RegWrite),
+
         .ReadData(ReadData),
         .PC(PC),
         .Zero(Zero),
@@ -58,16 +53,12 @@ module Core(
 
     Controller Controller_instance (
         .Zero(Zero),
+
         .funct3(di.funct3),
         .funct7(di.funct7),
         .op(di.op),
-        .PCSrc(cs.PCSrc),
-        .ResultSrc(cs.ResultSrc),
-        .MemWrite(cs.MemWrite),
-        .ALUSrc(cs.ALUSrc),
-        .ImmSrc(cs.ImmSrc),
-        .RegWrite(cs.RegWrite),
-        .ALUControl(cs.ALUControl)
+        
+        .control_signals(cs)
     );
 
 endmodule

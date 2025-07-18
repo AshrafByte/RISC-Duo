@@ -3,16 +3,11 @@ import types_pkg::*;
 
 
 module main_decoder (
-    input  logic        Zero,
-    input  opcode_e     op,
-    
-    output logic        PCSrc,
-    output resultsrc_e  ResultSrc,
-    output logic        MemWrite,
-    output logic        ALUSrc,
-    output immsrc_e     ImmSrc,
-    output logic        RegWrite,
-    output aluop_type_e ALUOp
+    input  logic             Zero,
+    input  opcode_e          op,
+
+    output aluop_type_e      ALUOp,
+    output control_signals_t control_signals 
 );
     always_comb begin
         
@@ -21,7 +16,7 @@ module main_decoder (
             .resultsrc(RESULT_ALU),
             .memwrite(0),
             .alusrc(0),
-            .immsrc(IMM_I),
+            .immsrc(IMMSRC_I),
             .regwrite(0),
             .aluop(ALUOP_OTHER)
         );
@@ -32,7 +27,7 @@ module main_decoder (
                 .resultsrc(RESULT_ALU),
                 .memwrite(1),
                 .alusrc(1),
-                .immsrc(IMM_S),
+                .immsrc(IMMSRC_S),
                 .regwrite(0),
                 .aluop(ALUOP_LUI)
             );
@@ -42,7 +37,7 @@ module main_decoder (
                 .resultsrc(RESULT_ALU),
                 .memwrite(0),
                 .alusrc(0),
-                .immsrc(IMM_B),
+                .immsrc(IMMSRC_B),
                 .regwrite(0),
                 .aluop(ALUOP_BRANCH)
             );
@@ -52,7 +47,7 @@ module main_decoder (
                 .resultsrc(RESULT_JUMP),
                 .memwrite(0),
                 .alusrc(1),
-                .immsrc(IMM_J),
+                .immsrc(IMMSRC_J),
                 .regwrite(1),
                 .aluop(ALUOP_LUI)
             );
@@ -62,7 +57,7 @@ module main_decoder (
                 .resultsrc(RESULT_ALU),
                 .memwrite(0),
                 .alusrc(0),
-                .immsrc(IMM_I),
+                .immsrc(IMMSRC_I),
                 .regwrite(1),
                 .aluop(ALUOP_R_OR_I_TYPE)
             );
@@ -72,7 +67,7 @@ module main_decoder (
                 .resultsrc(RESULT_ALU),
                 .memwrite(0),
                 .alusrc(1),
-                .immsrc(IMM_I),
+                .immsrc(IMMSRC_I),
                 .regwrite(1),
                 .aluop(ALUOP_R_OR_I_TYPE)      
             );
@@ -82,7 +77,7 @@ module main_decoder (
                 .resultsrc(RESULT_MEM),
                 .memwrite(0),
                 .alusrc(1),
-                .immsrc(IMM_I),
+                .immsrc(IMMSRC_I),
                 .regwrite(1),
                 .aluop(ALUOP_LUI)
             );
@@ -103,13 +98,13 @@ module main_decoder (
             input aluop_type_e aluop
         );
 
-        PCSrc      = pcsrc;
-        ResultSrc  = resultsrc;
-        MemWrite   = memwrite;
-        ALUSrc     = alusrc;
-        ImmSrc     = immsrc;
-        RegWrite   = regwrite;
-        ALUOp      = aluop;
+        control_signals.PCSrc      = pcsrc;
+        control_signals.ResultSrc  = resultsrc;
+        control_signals.MemWrite   = memwrite;
+        control_signals.ALUSrc     = alusrc;
+        control_signals.ImmSrc     = immsrc;
+        control_signals.RegWrite   = regwrite;
+        ALUOp                      = aluop;
         
     endfunction : setControlSignals 
 

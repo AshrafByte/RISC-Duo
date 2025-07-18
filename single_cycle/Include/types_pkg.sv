@@ -128,10 +128,10 @@ package types_pkg;
 
     // Immediate format selector
     typedef enum logic [1:0] {
-        IMM_I = 2'b00,
-        IMM_S = 2'b01,
-        IMM_B = 2'b10,
-        IMM_J = 2'b11
+        IMMSRC_I = 2'b00,
+        IMMSRC_S = 2'b01,
+        IMMSRC_B = 2'b10,
+        IMMSRC_J = 2'b11
     } immsrc_e;
 
     // =============================================================
