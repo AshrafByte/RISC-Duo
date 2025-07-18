@@ -5,12 +5,12 @@ module Top (
     input logic reset
 );
  // === Internal Wires ===
-    wire [XLEN-1:0] PC;
-    wire [XLEN-1:0] WriteData;
-    wire [XLEN-1:0] DataAdr;
-    wire [XLEN-1:0] ReadData;
-    wire [XLEN-1:0] Instr;
-    wire MemWrite;
+    word_t PC;
+    word_t WriteData;
+    word_t DataAdr;
+    word_t ReadData;
+    word_t Instr;
+    logic MemWrite;
 
  // === Memories ===
  data_mem DataMemory (
