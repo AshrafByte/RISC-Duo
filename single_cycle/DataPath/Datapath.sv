@@ -64,7 +64,7 @@ module DataPath (
     // PC + 4
     adder pc_adder (
         .a(PCReg),
-        .b(32'd4),
+        .b(32'd1),
         .sum(PCPlus4)
     );
 

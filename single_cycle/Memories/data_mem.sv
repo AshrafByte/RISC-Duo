@@ -15,7 +15,14 @@ module data_mem(
 
     always_ff@(posedge clk)begin
         if(write_enable) data_memory[data_address] <= write_data;
-        read_data <= data_memory[data_address];
+        else read_data <= data_memory[data_address];
     end
+
+    // always_ff@(posedge clk)begin
+    //     if(write_enable)
+    //         {data_memory[data_address], data_memory[data_address+1], data_memory[data_address+2], data_memory[data_address+3]} <= write_data;
+    //     else
+    //         read_data <= {data_memory[data_address], data_memory[data_address+1], data_memory[data_address+2], data_memory[data_address+3]};
+    // end
 
 endmodule
