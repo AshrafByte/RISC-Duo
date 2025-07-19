@@ -96,22 +96,9 @@ module DataPath (
 
 
 
-    // ==================================================
-    // Sign-extension of raw immediates in Stage 2
-    // ==================================================
-    assign imm_mux_in[IMMSRC_I] = {{20{imm_i_raw[11]}}, imm_i_raw};
-    assign imm_mux_in[IMMSRC_S] = {{20{imm_s_raw[11]}}, imm_s_raw};
-    assign imm_mux_in[IMMSRC_B] = {{19{imm_b_raw[12]}}, imm_b_raw};
-    assign imm_mux_in[IMMSRC_J] = {{11{imm_j_raw[20]}}, imm_j_raw};
-
-    mux #(.SEL_WIDTH(2)) imm_mux (
-        .in(imm_mux_in),
-        .sel(ImmSrcD),
-        .out(ImmExtD)
-    );
 
     // ==================================================
-    // Program Counter (PC) Logic in Stage 1
+    // Program Counter (PC) Logic + instruction fetch in Stage 1
     // ==================================================
 
     // PC + 4
@@ -148,17 +135,15 @@ module DataPath (
 
     assign PC = PCF;
 
-    // ==================================================
-    // Instruction memory Stage 1
-    // ==================================================
     instr_mem InstructionMemory (
         .clk(clk),
         .address(PC),
         .instruction(InstrF)
     );
 
+
     // ==================================================
-    // Stage 2: Instruction Decode
+    // Stage 2: Instruction Decode and control signals
     // ==================================================
 
     decoder decoder_instance (
@@ -187,8 +172,21 @@ module DataPath (
     assign ALUSrcD = cs.ALUSrc;
     assign ImmSrcD = cs.ImmSrc;
 
-    //extension 
-    
+    // ==================================================
+    // Sign-extension of raw immediates in Stage 2
+    // ==================================================
+
+    assign imm_mux_in[IMMSRC_I] = {{20{di.imm_i_raw[11]}}, di.imm_i_raw};
+    assign imm_mux_in[IMMSRC_S] = {{20{di.imm_s_raw[11]}}, di.imm_s_raw};
+    assign imm_mux_in[IMMSRC_B] = {{19{di.imm_b_raw[12]}}, di.imm_b_raw};
+    assign imm_mux_in[IMMSRC_J] = {{11{di.imm_j_raw[20]}}, di.imm_j_raw};
+
+    mux #(.SEL_WIDTH(2)) imm_mux (
+        .in(imm_mux_in),
+        .sel(ImmSrcD),
+        .out(ImmExtD)
+    );
+
 
 
     regFile RegisterFile (
