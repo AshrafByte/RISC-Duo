@@ -47,6 +47,8 @@ module DataPath (
     logic [1:0] ImmSrcD     ;
     logic [1:0] ResultSrcD  ;
     logic MemWriteD         ;
+    logic JumpD             ; //Was missing
+    logic BranchD           ; //was missing
 
 
     // Stage 3: Execute
@@ -74,7 +76,7 @@ module DataPath (
     word_t SrcAE            ;
     word_t SrcBE            ;
     word_t ALUResultE       ;
-    word_t WriteDataE       ;
+    word_t WriteDataE       ;    
 
     // Stage 4: Memory Access
     word_t ALUResultM       ;
@@ -97,8 +99,55 @@ module DataPath (
     logic RegWriteW         ;
     logic [1:0] ResultSrcW  ;
 
+    pipo #(1) stage4_RegWrite (.clk(clk), .rst(reset), .enable(enable), .in(RegWriteM), .out(RegWriteW));
+    pipo #(2) stage4_ResultSrc (.clk(clk), .rst(reset), .enable(enable), .in(ResultSrcM), .out(ResultSrc));
+    pipo #(XLEN) stage4_ALUResult (.clk(clk), .rst(reset), .enable(enable), .in(ALUResultM), .out(ALUResultW));
+    pipo #(REG_ADDR_WIDTH) stage4_Rd (.clk(clk), .rst(reset), .enable(enable), .in(RdM), .out(RdW));
+    pipo #(XLEN) stage4_PCPlus4 (.clk(clk), .rst(reset), .enable(enable), .in(PCPlus4M), .out(PCPlus4W));
 
 
+
+
+
+    //===================================================
+    //    Pipelinining
+    //====================================================
+
+    //Stage 1:
+    pipo #(XLEN) stage1_PC (.clk(clk), .rst(reset), .enable(enable), .in(PCF), .out(PCD)) ;
+    pipo #(XLEN) stage1_PCPlus4(.clk(clk), .rst(reset), .enable(enable), .in(PCPlus4F), .out(PCPlus4D));
+    pipo #(XLEN) stage1_Instr(.clk(clk), .rst(reset), .enable(enable), .in(InstrF), .out(InstrD));
+    //pipo #(XLEN) stage1_PCNext(.clk(clk), .rst(reset), .enable(enable), .in(InstrF), .out()) //???
+
+    //Stage 2:
+    pipo #(XLEN) stage2_RD1 (.clk(clk), .rst(reset), .enable(enable), .in(RD1D), .out(RD1E));
+    pipo #(XLEN) stage2_RD1 (.clk(clk), .rst(reset), .enable(enable), .in(RD2D), .out(RD2E));
+    pipo #(XLEN) stage2_PC (.clk(clk), .rst(reset), .enable(enable), .in(PCD), .out(PCE));
+    pipo #(REG_ADDR_WIDTH) stage2_Rs1 (.clk(clk), .rst(reset), .enable(enable), .in(Rs1D), .out(Rs1E));
+    pipo #(REG_ADDR_WIDTH) stage2_Rs2 (.clk(clk), .rst(reset), .enable(enable), .in(Rs2D), .out(Rs2E));
+    pipo #(REG_ADDR_WIDTH) stage2_Rd (.clk(clk), .rst(reset), .enable(enable), .in(RdD), .out(RdE));
+    pipo #(REG_ADDR_WIDTH) stage2_ImmExt (.clk(clk), .rst(reset), .enable(enable), .in(ImmExtD), .out(ImmExtE));
+    pipo #(XLEN) stage2_PCPlus4 (.clk(clk), .rst(reset), .enable(enable), .in(PCPlus4D), .out(PCPlus4E));
+
+    pipo #(1) stage2_RegWrite (.clk(clk), .rst(reset), .enable(enable), .in(RegWriteD), .out(RegWriteE));
+    pipo #(2) stage2_ResultSrc (.clk(clk), .rst(reset), .enable(enable), .in(ResultSrcD), .out(ResultSrcE));
+    pipo #(1) stage2_MemWrite (.clk(clk), .rst(reset), .enable(enable), .in(MemWriteD), .out(MemWriteE));
+    //pipo #(1) stage2_Jump (.clk(clk), .rst(reset), .enable(enable), .in(JumpD), .out(JumpE));
+    pipo #(1) stage2_Branch (.clk(clk), .rst(reset), .enable(enable), .in(BranchD), .out(BranchE));
+    pipo #(4) stage2_ALUControl (.clk(clk), .rst(reset), .enable(enable), .in(ALUControlD), .out(ALUControlE));
+    pipo #(1) stage2_ALUSrc (.clk(clk), .rst(reset), .enable(enable), .in(ALUSrcD), .out(ALUSrcE));
+
+    //Stage3:
+    pipo #(1) stage3_RegWrite (.clk(clk), .rst(reset), .enable(enable), in(RegWriteE), out(RegWriteM));
+    pipo #(2) stage3_ResultSrc (.clk(clk), .rst(reset), .enable(enable), in(ResultSrcE), out(ResultSrcM));
+    pipo #(1) stage3_MemWrite (.clk(clk), .rst(reset), .enable(enable), in(MemWriteE), out(MemWriteM));
+    pipo #(XLEN) stage3_ALUResult (.clk(clk), .rst(reset), .enable(enable), in(ALUResultE), out(ALUResultM));
+    pipo #(XLEN) stage3_WriteData (.clk(clk), .rst(reset), .enable(enable), in(WriteDataE), out(WriteDataM));
+    pipo #(REG_ADDR_WIDTH) stage3_Rd (.clk(clk), .rst(reset), .enable(enable), .in(RdE), out(RdM) );
+    pipo #(XLEN) stage3_PCPlus4 (.clk(clk), .rst(reset), .enable(enable), .in(PCPlus4E), out(PCPlus4M));
+
+    //stage4:
+    pipo #() stage4_ (.clk(clk), .rst(reset), .enable(enable), .in(), .out());
 
     // ==================================================
     // Program Counter (PC) Logic + instruction fetch in Stage 1
