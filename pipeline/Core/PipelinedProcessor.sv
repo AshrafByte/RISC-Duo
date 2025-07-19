@@ -99,12 +99,6 @@ module DataPath (
     logic RegWriteW         ;
     logic [1:0] ResultSrcW  ;
 
-    pipo #(1) stage4_RegWrite (.clk(clk), .rst(reset), .enable(enable), .in(RegWriteM), .out(RegWriteW));
-    pipo #(2) stage4_ResultSrc (.clk(clk), .rst(reset), .enable(enable), .in(ResultSrcM), .out(ResultSrc));
-    pipo #(XLEN) stage4_ALUResult (.clk(clk), .rst(reset), .enable(enable), .in(ALUResultM), .out(ALUResultW));
-    pipo #(REG_ADDR_WIDTH) stage4_Rd (.clk(clk), .rst(reset), .enable(enable), .in(RdM), .out(RdW));
-    pipo #(XLEN) stage4_PCPlus4 (.clk(clk), .rst(reset), .enable(enable), .in(PCPlus4M), .out(PCPlus4W));
-
 
 
 
@@ -147,7 +141,12 @@ module DataPath (
     pipo #(XLEN) stage3_PCPlus4 (.clk(clk), .rst(reset), .enable(enable), .in(PCPlus4E), out(PCPlus4M));
 
     //stage4:
-    pipo #() stage4_ (.clk(clk), .rst(reset), .enable(enable), .in(), .out());
+
+    pipo #(1) stage4_RegWrite (.clk(clk), .rst(reset), .enable(enable), .in(RegWriteM), .out(RegWriteW));
+    pipo #(2) stage4_ResultSrc (.clk(clk), .rst(reset), .enable(enable), .in(ResultSrcM), .out(ResultSrc));
+    pipo #(XLEN) stage4_ALUResult (.clk(clk), .rst(reset), .enable(enable), .in(ALUResultM), .out(ALUResultW));
+    pipo #(REG_ADDR_WIDTH) stage4_Rd (.clk(clk), .rst(reset), .enable(enable), .in(RdM), .out(RdW));
+    pipo #(XLEN) stage4_PCPlus4 (.clk(clk), .rst(reset), .enable(enable), .in(PCPlus4M), .out(PCPlus4W));
 
     // ==================================================
     // Program Counter (PC) Logic + instruction fetch in Stage 1
