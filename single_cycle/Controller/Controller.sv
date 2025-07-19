@@ -24,6 +24,7 @@ module Controller (
     );
      
     alu_decoder alu_decoder_instance (
+        .op(op),
         .ALUOp(ALUOp),
         .funct3(funct3),
         .funct7(funct7),

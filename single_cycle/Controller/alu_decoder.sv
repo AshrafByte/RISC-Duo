@@ -3,6 +3,7 @@
 import types_pkg::*;
 
 module alu_decoder (
+    input  opcode_e op,
     input  aluop_type_e ALUOp,
     input  funct3_e     funct3,
     input  funct7_e     funct7,
@@ -21,7 +22,7 @@ module alu_decoder (
 
     function automatic aluop_e decode_funct3();
         unique case (funct3)
-            F3_ADD_SUB:   return decode_funct7_variant(ALU_ADD, ALU_SUB);
+            F3_ADD_SUB:   return (op == OP_I_TYPE_ARITH) ? ALU_ADD : decode_funct7_variant(ALU_ADD, ALU_SUB); // Handle Addi instruction
             F3_SLL:       return ALU_SLL;
             F3_SLT:       return ALU_SLT;
             F3_SLTU:      return ALU_SLTU;
