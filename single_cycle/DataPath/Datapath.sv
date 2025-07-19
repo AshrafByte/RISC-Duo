@@ -46,7 +46,11 @@ module DataPath (
     // ==================================================
     // Sign-extension of raw immediates
     // ==================================================
-    assign imm_mux_in[IMMSRC_I] = {{20{imm_i_raw[11]}}, imm_i_raw};
+    Extension #(.WIDTI_IN(12), .WIDTI_OUT(32)) imm_ext (
+        .in(imm_i_raw),
+        .shift(ALUControl.shift),
+        .out(imm_mux_in[IMMSRC_I])
+    );
     assign imm_mux_in[IMMSRC_S] = {{20{imm_s_raw[11]}}, imm_s_raw};
     assign imm_mux_in[IMMSRC_B] = {{19{imm_b_raw[12]}}, imm_b_raw};
     assign imm_mux_in[IMMSRC_J] = {{11{imm_j_raw[20]}}, imm_j_raw};
