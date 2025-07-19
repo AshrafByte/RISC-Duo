@@ -7,7 +7,8 @@ module alu_decoder (
     input  aluop_type_e ALUOp,
     input  funct3_e     funct3,
     input  funct7_e     funct7,
-    output aluop_e      ALUControl
+    output aluop_e      ALUControl,
+    output logic        shift // Indicates if the operation is a shift (SLL, SRL, SRA)
 );
 
     always_comb begin
@@ -16,6 +17,10 @@ module alu_decoder (
             ALUOP_BRANCH:         ALUControl = ALU_SUB;   // used for branch operations
             ALUOP_R_OR_I_TYPE:    ALUControl = decode_funct3();
             default:              ALUControl = ALU_ADD;
+        endcase
+        unique case (funct3)
+            F3_SLL, F3_SRL_SRA:   shift = 1'b1; // Shift operations
+            default:              shift = 1'b0; // Non-shift operations
         endcase
     end
 

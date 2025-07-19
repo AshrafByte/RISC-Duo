@@ -23,6 +23,7 @@ module DataPath (
     input  logic        ALUSrc,
     input  immsrc_e     ImmSrc,
     input  logic        RegWrite,
+    input  logic        shift,
 
     // === Memory Interface ===
     input  word_t       ReadData,
@@ -48,7 +49,7 @@ module DataPath (
     // ==================================================
     Extension #(.WIDTI_IN(12), .WIDTI_OUT(32)) imm_ext (
         .in(imm_i_raw),
-        .shift(ALUControl.shift),
+        .shift(shift),
         .out(imm_mux_in[IMMSRC_I])
     );
     assign imm_mux_in[IMMSRC_S] = {{20{imm_s_raw[11]}}, imm_s_raw};
