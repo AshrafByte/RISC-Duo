@@ -49,7 +49,7 @@ module DataPath (
 
     // Stage 1: Instruction Fetch
     word_t PCF      ;    
-    word_t PCF'     ;    // for next PCF
+    word_t PCNextF  ; 
     word_t InstrF   ;
     word_t PCPlus4F ;
 
@@ -80,6 +80,7 @@ module DataPath (
     logic BranchE           ;
     logic [1:0] ALUOpE      ;
     logic ALUSrcE           ;
+    logic PCSrcE            ;
 
     word_t RD1E             ;
     word_t RD2E             ;
@@ -114,11 +115,11 @@ module DataPath (
 
     logic RegWriteW         ;
     logic [1:0] ResultSrcW  ;
-    
+
 
 
     // ==================================================
-    // Sign-extension of raw immediates
+    // Sign-extension of raw immediates in Stage 2
     // ==================================================
     assign imm_mux_in[IMMSRC_I] = {{20{imm_i_raw[11]}}, imm_i_raw};
     assign imm_mux_in[IMMSRC_S] = {{20{imm_s_raw[11]}}, imm_s_raw};
@@ -127,19 +128,19 @@ module DataPath (
 
     mux #(.SEL_WIDTH(2)) imm_mux (
         .in(imm_mux_in),
-        .sel(ImmSrc),
-        .out(ImmExt)
+        .sel(ImmSrcD),
+        .out(ImmExtD)
     );
 
     // ==================================================
-    // Program Counter (PC) Logic
+    // Program Counter (PC) Logic in Stage 1
     // ==================================================
 
     // PC + 4
     adder pc_adder (
         .a(PCReg),
         .b(32'd1),
-        .sum(PCPlus4)
+        .sum(PCPlus4F)
     );
 
     // PC + Immediate (for branches/jumps)
@@ -150,12 +151,12 @@ module DataPath (
     );
 
     // Select next PC value
-    assign pc_mux_in[0] = PCPlus4;
-    assign pc_mux_in[1] = PCTarget;
+    assign pc_mux_in[0] = PCPlus4F;
+    assign pc_mux_in[1] = PCTargetE;
 
     mux #(.SEL_WIDTH(1)) pc_mux (
         .in(pc_mux_in),
-        .sel(PCSrc),
+        .sel(PCSrcE),
         .out(PCNext)
     );
 
@@ -163,11 +164,11 @@ module DataPath (
     pc PC_reg (
         .clk(clk),
         .reset(reset),
-        .PCNext(PCNext),
-        .pc(PCReg)
+        .PCNext(PCNextF),
+        .pc(PCF)
     );
 
-    assign PC = PCReg;
+    assign PC = PCF;
 
     // ==================================================
     // Register File
