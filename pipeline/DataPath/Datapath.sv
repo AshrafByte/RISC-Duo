@@ -44,6 +44,80 @@ module DataPath (
     word_t pc_mux_in     [2];
 
     // ==================================================
+    // Internal Wires for pipeline registers
+    // ==================================================
+
+    // Stage 1: Instruction Fetch
+    word_t PCF      ;    
+    word_t PCF'     ;    // for next PCF
+    word_t InstrF   ;
+    word_t PCPlus4F ;
+
+    // Stage 2: Instruction Decode
+    word_t InstrD   ;
+    word_t PCD      ;
+    word_t Rs1D     ;
+    word_t Rs2D     ;
+    word_t RdD      ;
+    word_t ImmExtD  ;
+    word_t PCPlus4D ;
+
+    logic RegWriteD         ;
+    logic [1:0] ALUOpD      ;
+    logic ALUSrcD           ;
+    logic [1:0] ImmSrcD     ;
+    logic [1:0] ResultSrcD  ;
+    logic MemWriteD         ;
+    logic JumpD             ;
+    logic BranchD           ;
+
+    // Stage 3: Execute
+    logic RegWriteE         ;
+    logic [1:0] ResultSrcE  ;
+    logic MemWriteE         ;
+    logic ALUSrcE           ;
+    logic JumpE             ;
+    logic BranchE           ;
+    logic [1:0] ALUOpE      ;
+    logic ALUSrcE           ;
+
+    word_t RD1E             ;
+    word_t RD2E             ;
+    word_t PCE              ;
+    word_t ImmExtE          ;
+    word_t Rs1E             ;
+    word_t Rs2E             ;
+    word_t RdE              ;
+    word_t PCPlus4E         ;
+    word_t PCTargetE        ;
+    word_t SrcAE            ;
+    word_t SrcBE            ;
+    word_t ALUResultE       ;
+    word_t WriteDataE       ;
+
+    // Stage 4: Memory Access
+    word_t ALUResultM       ;
+    word_t WriteDataM       ;
+    word_t RdM              ;
+    word_t PCPlus4M         ;
+    word_t ReadDataM        ;
+
+    logic RegWriteM         ;
+    logic [1:0] ResultSrcM  ;
+    logic MemWriteM         ;
+
+    // Stage 5: Write Back
+    word_t ALUResultW       ;
+    word_t ReadDataW        ;
+    word_t PCPlus4W         ;
+    word_t ResultW          ;
+
+    logic RegWriteW         ;
+    logic [1:0] ResultSrcW  ;
+    
+
+
+    // ==================================================
     // Sign-extension of raw immediates
     // ==================================================
     assign imm_mux_in[IMMSRC_I] = {{20{imm_i_raw[11]}}, imm_i_raw};
