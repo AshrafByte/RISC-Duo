@@ -39,6 +39,8 @@ module DataPath (
     word_t RD2D         ;
     word_t ImmExtD      ;
     word_t PCPlus4D     ;
+    aluop_e  ALUControlD;
+
 
     logic RegWriteD         ;
     logic ALUSrcD           ;
@@ -55,9 +57,10 @@ module DataPath (
     logic JumpE             ;
     logic BranchE           ;
     logic [1:0] ALUOpE      ;
-    logic ALUSrcE           ;
     logic PCSrcE            ;
     logic ZeroE             ;
+    aluop_e  ALUControlE    ;
+
 
     word_t RD1E             ;
     word_t RD2E             ;
@@ -108,12 +111,7 @@ module DataPath (
         .sum(PCPlus4F)
     );
 
-    // PC + Immediate (for branches/jumps)
-    adder pc_target_adder (
-        .a(PCReg),
-        .b(ImmExt),
-        .sum(PCTarget)
-    );
+
 
     // Select next PC value
     assign pc_mux_in[0] = PCPlus4F;
@@ -122,7 +120,7 @@ module DataPath (
     mux #(.SEL_WIDTH(1)) pc_mux (
         .in(pc_mux_in),
         .sel(PCSrcE),
-        .out(PCNext)
+        .out(PCNextF)
     );
 
     // PC Register
@@ -201,35 +199,43 @@ module DataPath (
     );
 
 
-    // here a mux for the forwarding
-    assign WriteData = RD2E;
+
 
     // ==================================================
-    // ALU and Operand MUX
+    // Execute Stage 
     // ==================================================
     assign alu_mux_in[0] = RD2E;
     assign alu_mux_in[1] = ImmExtE;
 
     mux #(.SEL_WIDTH(1)) mux_b (
         .in (alu_mux_in),
-        .sel(ALUSrc),
-        .out(SrcB)
+        .sel(ALUSrcE),
+        .out(SrcBE)
     );
 
     alu ALU (
         .a       (RD1E),
-        .b       (SrcB),
-        .control (ALUControl),
-        .result  (ALUResult),
-        .zero    (Zero)
+        .b       (SrcBE),
+        .control (ALUControlE),
+        .result  (ALUResultE),
+        .zero    (ZeroE)
     );
+    // PC + Immediate (for branches/jumps)
+    adder pc_target_adder (
+        .a(PCE),
+        .b(ImmExtE),
+        .sum(PCTargetE)
+    );
+    // here a mux for the forwarding
+    assign WriteDataE = RD2E;
+    //
 
     // ==================================================
     // Write-Back Result MUX
     // ==================================================
-    assign result_mux_in[RESULT_ALU]  = ALUResult;
-    assign result_mux_in[RESULT_MEM]  = ReadData;
-    assign result_mux_in[RESULT_JUMP] = PCPlus4;
+    assign result_mux_in[RESULT_ALU]  = ALUResultM;
+    assign result_mux_in[RESULT_MEM]  = ReadDataM;
+    assign result_mux_in[RESULT_JUMP] = PCPlus4M;
 
     mux #(.SEL_WIDTH(2)) result_mux (
         .in (result_mux_in),
