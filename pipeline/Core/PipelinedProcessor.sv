@@ -5,33 +5,6 @@ module DataPath (
     input  logic        clk,
     input  logic        reset,
 
-    // === Register Addresses ===
-    input  reg_addr_t   rs1,
-    input  reg_addr_t   rs2,
-    input  reg_addr_t   rd,
-
-    // === Immediate Inputs (Raw) ===
-    input  imm_i_raw_t  imm_i_raw,
-    input  imm_s_raw_t  imm_s_raw,
-    input  imm_b_raw_t  imm_b_raw,
-    input  imm_j_raw_t  imm_j_raw,
-
-    // === Control Signals ===
-    input  logic        PCSrc,
-    input  resultsrc_e  ResultSrc,
-    input  aluop_e      ALUControl,
-    input  logic        ALUSrc,
-    input  immsrc_e     ImmSrc,
-    input  logic        RegWrite,
-
-    // === Memory Interface ===
-    input  word_t       ReadData,
-
-    // === Outputs ===
-    output word_t       PC,
-    output logic        Zero,
-    output word_t       ALUResult,
-    output word_t       WriteData
 );
 
     // ==================================================
@@ -54,22 +27,25 @@ module DataPath (
     word_t PCPlus4F ;
 
     // Stage 2: Instruction Decode
+    decoded_instr_t di  ;
+    control_signals_t cs;
+
     word_t InstrD       ;
     word_t PCD          ;
     reg_addr_t Rs1D     ;
     reg_addr_t Rs2D     ;
     reg_addr_t RdD      ;
+    word_t RD1D         ;
+    word_t RD2D         ;
     word_t ImmExtD      ;
     word_t PCPlus4D     ;
 
     logic RegWriteD         ;
-    logic [1:0] ALUOpD      ;
     logic ALUSrcD           ;
     logic [1:0] ImmSrcD     ;
     logic [1:0] ResultSrcD  ;
     logic MemWriteD         ;
-    logic JumpD             ;
-    logic BranchD           ;
+
 
     // Stage 3: Execute
     logic RegWriteE         ;
@@ -81,6 +57,7 @@ module DataPath (
     logic [1:0] ALUOpE      ;
     logic ALUSrcE           ;
     logic PCSrcE            ;
+    logic ZeroE             ;
 
     word_t RD1E             ;
     word_t RD2E             ;
@@ -112,7 +89,7 @@ module DataPath (
     word_t ReadDataW        ;
     word_t PCPlus4W         ;
     word_t ResultW          ;
-    reg_addr_t ReadDataW    ;
+    reg_addr_t RdW          ;
 
     logic RegWriteW         ;
     logic [1:0] ResultSrcW  ;
@@ -172,22 +149,62 @@ module DataPath (
     assign PC = PCF;
 
     // ==================================================
-    // Register File
+    // Instruction memory Stage 1
     // ==================================================
-    word_t RD1, RD2;
+    instr_mem InstructionMemory (
+        .clk(clk),
+        .address(PC),
+        .instruction(InstrF)
+    );
+
+    // ==================================================
+    // Stage 2: Instruction Decode
+    // ==================================================
+
+    decoder decoder_instance (
+        .Instr(InstrD),
+        .decoded_instr(di)
+    );
+
+    Controller Controller_instance (
+        .Zero(ZeroE),
+
+        .funct3(di.funct3),
+        .funct7(di.funct7),
+        .op(di.op),
+        
+        .control_signals(cs),
+        .ALUControl(ALUControl)
+    );
+
+    assign Rs1D = di.rs1;
+    assign Rs2D = di.rs2;
+    assign RdD  = di.rd;
+
+    assign RegWriteD = cs.RegWrite;
+    assign ResultSrcD = cs.ResultSrc;
+    assign MemWriteD = cs.MemWrite;
+    assign ALUSrcD = cs.ALUSrc;
+    assign ImmSrcD = cs.ImmSrc;
+
+    //extension 
+    
+
 
     regFile RegisterFile (
         .clk         (clk),
-        .read_reg1   (rs1),
-        .read_reg2   (rs2),
-        .write_reg   (rd),
-        .write_data  (Result),
+        .read_reg1   (Rs1D),
+        .read_reg2   (Rs2D),
+        .write_reg   (RdW),
+        .write_data  (ResultW),
         .writeEnable (RegWrite),
-        .read_data1  (RD1),
-        .read_data2  (RD2)
+        .read_data1  (RD1D),
+        .read_data2  (RD2D)
     );
 
-    assign WriteData = RD2;
+
+    // here a mux for the forwarding
+    assign WriteData = RD2E;
 
     // ==================================================
     // ALU and Operand MUX
