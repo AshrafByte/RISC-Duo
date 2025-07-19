@@ -3,7 +3,7 @@
 import types_pkg::*;
 module DataPath (
     input  logic        clk,
-    input  logic        reset,
+    input  logic        reset
 
 );
 
@@ -147,7 +147,7 @@ module DataPath (
     pipo #(XLEN) stage4_ALUResult (.clk(clk), .rst(reset), .enable(enable), .in(ALUResultM), .out(ALUResultW));
     pipo #(REG_ADDR_WIDTH) stage4_Rd (.clk(clk), .rst(reset), .enable(enable), .in(RdM), .out(RdW));
     pipo #(XLEN) stage4_PCPlus4 (.clk(clk), .rst(reset), .enable(enable), .in(PCPlus4M), .out(PCPlus4W));
-    
+
 
     // ==================================================
     // Program Counter (PC) Logic + instruction fetch in Stage 1
