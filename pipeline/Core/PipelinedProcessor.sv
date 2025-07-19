@@ -147,6 +147,7 @@ module DataPath (
     pipo #(XLEN) stage4_ALUResult (.clk(clk), .rst(reset), .enable(enable), .in(ALUResultM), .out(ALUResultW));
     pipo #(REG_ADDR_WIDTH) stage4_Rd (.clk(clk), .rst(reset), .enable(enable), .in(RdM), .out(RdW));
     pipo #(XLEN) stage4_PCPlus4 (.clk(clk), .rst(reset), .enable(enable), .in(PCPlus4M), .out(PCPlus4W));
+    
 
     // ==================================================
     // Program Counter (PC) Logic + instruction fetch in Stage 1
@@ -158,8 +159,6 @@ module DataPath (
         .b(32'd1),
         .sum(PCPlus4F)
     );
-
-
 
     // Select next PC value
     assign pc_mux_in[0] = PCPlus4F;
@@ -248,10 +247,10 @@ module DataPath (
 
 
 
-
     // ==================================================
     // Execute Stage 
     // ==================================================
+
     assign alu_mux_in[0] = RD2E;
     assign alu_mux_in[1] = ImmExtE;
 
@@ -276,14 +275,28 @@ module DataPath (
     );
     // here a mux for the forwarding
     assign WriteDataE = RD2E;
-    //
+
 
     // ==================================================
-    // Write-Back Result MUX
+    // Memory Access Stage
     // ==================================================
-    assign result_mux_in[RESULT_ALU]  = ALUResultM;
-    assign result_mux_in[RESULT_MEM]  = ReadDataM;
-    assign result_mux_in[RESULT_JUMP] = PCPlus4M;
+
+    data_mem DataMemory (
+        .clk(clk),
+        .write_enable(MemWriteM),
+        .data_address(ALUResultM[ADDR_WIDTH-1:0]),  // Use only lower address bits
+        .write_data(WriteDataM),
+        .read_data(ReadDataM)
+    );
+
+
+    // ==================================================
+    // Write-Back Result Stage
+    // ==================================================
+
+    assign result_mux_in[RESULT_ALU]  = ALUResultW;
+    assign result_mux_in[RESULT_MEM]  = ReadDataW;
+    assign result_mux_in[RESULT_JUMP] = PCPlus4W;
 
     mux #(.SEL_WIDTH(2)) result_mux (
         .in (result_mux_in),
