@@ -3,7 +3,23 @@
 import types_pkg::*;
 module DataPath (
     input  logic        clk,
-    input  logic        reset
+    input  logic        reset,
+    input  logic StallF,
+    input  logic StallD,
+    input  logic FlushD,
+    output logic Rs1D,
+    output logic Rs2D,
+    input  logic FlushE,
+    output logic RdE,
+    output logic Rs2E,
+    output logic Rs1E,
+    output logic PCSrcE,
+    input  logic [1:0] ForwardAE,
+    input  logic [1:0]ForwardEE,
+    output logic ResultSrcE0,
+    output logic RdM,
+    output logic RegWriteM,
+    output logic RegWriteW,
 
 );
 
@@ -76,7 +92,11 @@ module DataPath (
     word_t SrcAE            ;
     word_t SrcBE            ;
     word_t ALUResultE       ;
-    word_t WriteDataE       ;    
+    word_t WriteDataE       ; 
+
+    word_t SrcAE_mux_in [3:0]  ;      //SrcAE Mux (output is SrcAE, inputs are RD1E, ResultW (WD), AluResultM and sel is ForwardAE)
+    word_t WriteDataE_mux_in [3:0] ;     //WriteDataE mux(output is WriteDataE, inputs are RD2E, ResultW, AluResultM, and sel is ForwardEE)
+  
 
     // Stage 4: Memory Access
     word_t ALUResultM       ;
@@ -99,7 +119,20 @@ module DataPath (
     logic RegWriteW         ;
     logic [1:0] ResultSrcW  ;
 
+    //===================================================
+    //  Internal wires to handle hazard signals
+    //==================================================
 
+    logic StallD_bar;           //enable signal for stage 1
+    assign StallD_bar = ~StallD;
+
+    logic stage_enable = 1;    //enable signal for registers that are always enabled (stage2, stage3, and stage4 pipos)
+    logic stage_rst = 0;       //reset signal for registers that will never reset (stage3, and stage4 pipos)
+
+    logic StallF_bar;           //enable signal for PC register
+    assign StallF_bar = ~StallF;
+
+    assign ResultSrcE0 = ResultSrcE[0];
 
 
 
@@ -108,46 +141,45 @@ module DataPath (
     //====================================================
 
     //Stage 1:
-    pipo #(XLEN) stage1_PC (.clk(clk), .rst(reset), .enable(enable), .in(PCF), .out(PCD)) ;
-    pipo #(XLEN) stage1_PCPlus4(.clk(clk), .rst(reset), .enable(enable), .in(PCPlus4F), .out(PCPlus4D));
-    pipo #(XLEN) stage1_Instr(.clk(clk), .rst(reset), .enable(enable), .in(InstrF), .out(InstrD));
+    pipo #(XLEN) stage1_PC (.clk(clk), .rst(FlushD), .enable(!StallD_bar), .in(PCF), .out(PCD)) ;
+    pipo #(XLEN) stage1_PCPlus4(.clk(clk), .rst(FlushD), .enable(!StallD_bar), .in(PCPlus4F), .out(PCPlus4D));
+    pipo #(XLEN) stage1_Instr(.clk(clk), .rst(FlushD), .enable(!StallD_bar), .in(InstrF), .out(InstrD));
     //pipo #(XLEN) stage1_PCNext(.clk(clk), .rst(reset), .enable(enable), .in(InstrF), .out()) //???
 
     //Stage 2:
-    pipo #(XLEN) stage2_RD1 (.clk(clk), .rst(reset), .enable(enable), .in(RD1D), .out(RD1E));
-    pipo #(XLEN) stage2_RD1 (.clk(clk), .rst(reset), .enable(enable), .in(RD2D), .out(RD2E));
-    pipo #(XLEN) stage2_PC (.clk(clk), .rst(reset), .enable(enable), .in(PCD), .out(PCE));
-    pipo #(REG_ADDR_WIDTH) stage2_Rs1 (.clk(clk), .rst(reset), .enable(enable), .in(Rs1D), .out(Rs1E));
-    pipo #(REG_ADDR_WIDTH) stage2_Rs2 (.clk(clk), .rst(reset), .enable(enable), .in(Rs2D), .out(Rs2E));
-    pipo #(REG_ADDR_WIDTH) stage2_Rd (.clk(clk), .rst(reset), .enable(enable), .in(RdD), .out(RdE));
-    pipo #(REG_ADDR_WIDTH) stage2_ImmExt (.clk(clk), .rst(reset), .enable(enable), .in(ImmExtD), .out(ImmExtE));
-    pipo #(XLEN) stage2_PCPlus4 (.clk(clk), .rst(reset), .enable(enable), .in(PCPlus4D), .out(PCPlus4E));
+    pipo #(XLEN) stage2_RD1 (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(RD1D), .out(RD1E));
+    pipo #(XLEN) stage2_RD1 (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(RD2D), .out(RD2E));
+    pipo #(XLEN) stage2_PC (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(PCD), .out(PCE));
+    pipo #(REG_ADDR_WIDTH) stage2_Rs1 (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(Rs1D), .out(Rs1E));
+    pipo #(REG_ADDR_WIDTH) stage2_Rs2 (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(Rs2D), .out(Rs2E));
+    pipo #(REG_ADDR_WIDTH) stage2_Rd (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(RdD), .out(RdE));
+    pipo #(REG_ADDR_WIDTH) stage2_ImmExt (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(ImmExtD), .out(ImmExtE));
+    pipo #(XLEN) stage2_PCPlus4 (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(PCPlus4D), .out(PCPlus4E));
 
-    pipo #(1) stage2_RegWrite (.clk(clk), .rst(reset), .enable(enable), .in(RegWriteD), .out(RegWriteE));
-    pipo #(2) stage2_ResultSrc (.clk(clk), .rst(reset), .enable(enable), .in(ResultSrcD), .out(ResultSrcE));
-    pipo #(1) stage2_MemWrite (.clk(clk), .rst(reset), .enable(enable), .in(MemWriteD), .out(MemWriteE));
-    //pipo #(1) stage2_Jump (.clk(clk), .rst(reset), .enable(enable), .in(JumpD), .out(JumpE));
-    pipo #(1) stage2_Branch (.clk(clk), .rst(reset), .enable(enable), .in(BranchD), .out(BranchE));
-    pipo #(4) stage2_ALUControl (.clk(clk), .rst(reset), .enable(enable), .in(ALUControlD), .out(ALUControlE));
-    pipo #(1) stage2_ALUSrc (.clk(clk), .rst(reset), .enable(enable), .in(ALUSrcD), .out(ALUSrcE));
+    pipo #(1) stage2_RegWrite (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(RegWriteD), .out(RegWriteE));
+    pipo #(2) stage2_ResultSrc (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(ResultSrcD), .out(ResultSrcE));
+    pipo #(1) stage2_MemWrite (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(MemWriteD), .out(MemWriteE));
+    //pipo #(1) stage2_Jump (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(JumpD), .out(JumpE));
+    pipo #(1) stage2_Branch (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(BranchD), .out(BranchE));
+    pipo #(4) stage2_ALUControl (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(ALUControlD), .out(ALUControlE));
+    pipo #(1) stage2_ALUSrc (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(ALUSrcD), .out(ALUSrcE));
 
     //Stage3:
-    pipo #(1) stage3_RegWrite (.clk(clk), .rst(reset), .enable(enable), in(RegWriteE), out(RegWriteM));
-    pipo #(2) stage3_ResultSrc (.clk(clk), .rst(reset), .enable(enable), in(ResultSrcE), out(ResultSrcM));
-    pipo #(1) stage3_MemWrite (.clk(clk), .rst(reset), .enable(enable), in(MemWriteE), out(MemWriteM));
-    pipo #(XLEN) stage3_ALUResult (.clk(clk), .rst(reset), .enable(enable), in(ALUResultE), out(ALUResultM));
-    pipo #(XLEN) stage3_WriteData (.clk(clk), .rst(reset), .enable(enable), in(WriteDataE), out(WriteDataM));
-    pipo #(REG_ADDR_WIDTH) stage3_Rd (.clk(clk), .rst(reset), .enable(enable), .in(RdE), out(RdM) );
-    pipo #(XLEN) stage3_PCPlus4 (.clk(clk), .rst(reset), .enable(enable), .in(PCPlus4E), out(PCPlus4M));
+    pipo #(1) stage3_RegWrite (.clk(clk), .rst(stage_rst), .enable(stage_enable), in(RegWriteE), out(RegWriteM));
+    pipo #(2) stage3_ResultSrc (.clk(clk), .rst(stage_rst), .enable(stage_enable), in(ResultSrcE), out(ResultSrcM));
+    pipo #(1) stage3_MemWrite (.clk(clk), .rst(stage_rst), .enable(stage_enable), in(MemWriteE), out(MemWriteM));
+    pipo #(XLEN) stage3_ALUResult (.clk(clk), .rst(stage_rst), .enable(stage_enable), in(ALUResultE), out(ALUResultM));
+    pipo #(XLEN) stage3_WriteData (.clk(clk), .rst(stage_rst), .enable(stage_enable), in(WriteDataE), out(WriteDataM));
+    pipo #(REG_ADDR_WIDTH) stage3_Rd (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(RdE), out(RdM) );
+    pipo #(XLEN) stage3_PCPlus4 (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(PCPlus4E), out(PCPlus4M));
 
     //stage4:
 
-    pipo #(1) stage4_RegWrite (.clk(clk), .rst(reset), .enable(enable), .in(RegWriteM), .out(RegWriteW));
-    pipo #(2) stage4_ResultSrc (.clk(clk), .rst(reset), .enable(enable), .in(ResultSrcM), .out(ResultSrc));
-    pipo #(XLEN) stage4_ALUResult (.clk(clk), .rst(reset), .enable(enable), .in(ALUResultM), .out(ALUResultW));
-    pipo #(REG_ADDR_WIDTH) stage4_Rd (.clk(clk), .rst(reset), .enable(enable), .in(RdM), .out(RdW));
-    pipo #(XLEN) stage4_PCPlus4 (.clk(clk), .rst(reset), .enable(enable), .in(PCPlus4M), .out(PCPlus4W));
-
+    pipo #(1) stage4_RegWrite (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(RegWriteM), .out(RegWriteW));
+    pipo #(2) stage4_ResultSrc (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(ResultSrcM), .out(ResultSrc));
+    pipo #(XLEN) stage4_ALUResult (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(ALUResultM), .out(ALUResultW));
+    pipo #(REG_ADDR_WIDTH) stage4_Rd (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(RdM), .out(RdW));
+    pipo #(XLEN) stage4_PCPlus4 (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(PCPlus4M), .out(PCPlus4W));
 
     // ==================================================
     // Program Counter (PC) Logic + instruction fetch in Stage 1
@@ -170,10 +202,12 @@ module DataPath (
         .out(PCNextF)
     );
 
+
     // PC Register
     pc PC_reg (
         .clk(clk),
         .reset(reset),
+        .enable(StallF_bar),
         .PCNext(PCNextF),
         .pc(PCF)
     );
@@ -245,13 +279,10 @@ module DataPath (
         .read_data2  (RD2D)
     );
 
-
-
     // ==================================================
     // Execute Stage 
     // ==================================================
-
-    assign alu_mux_in[0] = RD2E;
+    assign alu_mux_in[0] = WriteDataE;
     assign alu_mux_in[1] = ImmExtE;
 
     mux #(.SEL_WIDTH(1)) mux_b (
@@ -260,8 +291,31 @@ module DataPath (
         .out(SrcBE)
     );
 
+    //3:1 mux outputs SrcAE for ALU SrcAE
+    assign SrcAE_mux_in[0] = RD1E;
+    assign SrcAE_mux_in[1] = ResultW;
+    assign SrcAE_mux_in[2] = AluResultM;
+
+    mux #(.SEL_WIDTH(2)) SrcAE_mix(
+        .in(SrcAE_mux_in),
+        .sel(ForwardAE),
+        .out(SrcAE)
+    );
+
+    //3:1 mux outputs WriteDataE for ALU SrcBE
+    assign WriteDataE_mux_in[0] = RD2E;
+    assign WriteDataE_mux_in[1] = ResultW;
+    assign WriteDataE_mux_in[2] = AluResultM;
+
+    mux #(.SEL_WIDTH(2)) SrcAE_mix(
+        .in(WriteDataE_mux_in),
+        .sel(ForwardEE),
+        .out(WriteDataE)
+    );
+
+
     alu ALU (
-        .a       (RD1E),
+        .a       (SrcAE),
         .b       (SrcBE),
         .control (ALUControlE),
         .result  (ALUResultE),
@@ -274,29 +328,15 @@ module DataPath (
         .sum(PCTargetE)
     );
     // here a mux for the forwarding
-    assign WriteDataE = RD2E;
-
-
-    // ==================================================
-    // Memory Access Stage
-    // ==================================================
-
-    data_mem DataMemory (
-        .clk(clk),
-        .write_enable(MemWriteM),
-        .data_address(ALUResultM[ADDR_WIDTH-1:0]),  // Use only lower address bits
-        .write_data(WriteDataM),
-        .read_data(ReadDataM)
-    );
-
+    //assign WriteDataE = RD2E;
+    //
 
     // ==================================================
-    // Write-Back Result Stage
+    // Write-Back Result MUX
     // ==================================================
-
-    assign result_mux_in[RESULT_ALU]  = ALUResultW;
-    assign result_mux_in[RESULT_MEM]  = ReadDataW;
-    assign result_mux_in[RESULT_JUMP] = PCPlus4W;
+    assign result_mux_in[RESULT_ALU]  = ALUResultM;
+    assign result_mux_in[RESULT_MEM]  = ReadDataM;
+    assign result_mux_in[RESULT_JUMP] = PCPlus4M;
 
     mux #(.SEL_WIDTH(2)) result_mux (
         .in (result_mux_in),
