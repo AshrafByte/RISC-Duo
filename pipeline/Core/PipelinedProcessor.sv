@@ -19,9 +19,9 @@ module DataPath (
     output logic ResultSrcE0,
     output RdM,
     output RegWriteM,
-    output RegWriteW,
-
+    output RegWriteW
 );
+
 
     // ==================================================
     // Internal Wires
