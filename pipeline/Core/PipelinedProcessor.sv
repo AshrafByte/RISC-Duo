@@ -2,26 +2,43 @@
 // `default_nettype none
 import types_pkg::*;
 module DataPath (
-    input  logic        clk,
-    input  logic        reset,
-    input  logic StallF,
-    input  logic StallD,
-    input  logic FlushD,
-    output reg_addr_t Rs1D,
-    output reg_addr_t Rs2D,
-    input  logic FlushE,
-    output reg_addr_t RdE,
-    output reg_addr_t Rs2E,
-    output reg_addr_t Rs1E,
-    output logic PCSrcE,
-    input  logic [1:0] ForwardAE,
-    input  logic [1:0]ForwardEE,
-    output logic ResultSrcE0,
-    output reg_addr_t RdM,
-    output logic RegWriteM,
-    output logic RegWriteW
+    clk,
+    reset,
+    StallF,
+    StallD,
+    FlushD,
+    Rs1D,
+    Rs2D,
+    FlushE,
+    RdE,
+    Rs2E,
+    Rs1E,
+    PCSrcE,
+    ForwardAE,
+    ForwardEE,
+    ResultSrcE0,
+    RdM,
+    RegWriteM,
+    RegWriteW
 );
-
+    input logic clk;
+    input logic reset;
+    input logic StallF;
+    input logic StallD;
+    input logic FlushD;
+    input logic FlushE;
+    input logic [1:0] ForwardAE;
+    input logic [1:0] ForwardEE;
+    output reg_addr_t Rs1D;
+    output reg_addr_t Rs2D;
+    output reg_addr_t RdE;
+    output reg_addr_t Rs2E;
+    output reg_addr_t Rs1E;
+    output reg_addr_t RdM;
+    output logic PCSrcE;
+    output logic ResultSrcE0;
+    output logic RegWriteM;
+    output logic RegWriteW;
 
     // ==================================================
     // Internal Wires
@@ -36,79 +53,25 @@ module DataPath (
     // Internal Wires for pipeline registers
     // ==================================================
 
-    // Stage 1: Instruction Fetch
-    word_t PCF      ;    
-    word_t PCNextF  ; 
-    word_t InstrF   ;
-    word_t PCPlus4F ;
-
-    // Stage 2: Instruction Decode
-    decoded_instr_t di  ;
-    control_signals_t cs;
-
-    word_t InstrD       ;
-    word_t PCD          ;
-    reg_addr_t RdD      ;
-    word_t RD1D         ;
-    word_t RD2D         ;
-    word_t ImmExtD      ;
-    word_t PCPlus4D     ;
-    aluop_e  ALUControlD;
-
-
-    logic RegWriteD         ;
-    logic ALUSrcD           ;
-    logic [1:0] ImmSrcD     ;
-    logic [1:0] ResultSrcD  ;
-    logic MemWriteD         ;
-    logic JumpD             ; //Was missing
-    logic BranchD           ; //was missing
-
+    fetch_stage_t f;        // Stage 1: Fetch
+    decoded_instr_t di  ;   // Stage 2: Decode
+    control_signals_t cs;   // Control signals for Stage 2
+    decoding_stage_t d;      // Stage 2: Decode 
+    execute_stage_t e;      // Stage 3: Execute
+    memory_stage_t m;       // Stage 4: Memory Access
+    write_back_stage_t w;   // Stage 5: Write Back
 
     // Stage 3: Execute
-    logic RegWriteE         ;
-    logic [1:0] ResultSrcE  ;
-    logic MemWriteE         ;
-    logic ALUSrcE           ;
-    logic JumpE             ;
-    logic BranchE           ;
-    logic [1:0] ALUOpE      ;
-    logic ZeroE             ;
-    aluop_e  ALUControlE    ;
 
-
-    word_t RD1E             ;
-    word_t RD2E             ;
-    word_t PCE              ;
-    word_t ImmExtE          ;
-    word_t PCPlus4E         ;
-    word_t PCTargetE        ;
-    word_t SrcAE            ;
-    word_t SrcBE            ;
-    word_t ALUResultE       ;
-    word_t WriteDataE       ; 
 
     word_t SrcAE_mux_in [3:0]  ;      //SrcAE Mux (output is SrcAE, inputs are RD1E, ResultW (WD), AluResultM and sel is ForwardAE)
     word_t WriteDataE_mux_in [3:0] ;     //WriteDataE mux(output is WriteDataE, inputs are RD2E, ResultW, AluResultM, and sel is ForwardEE)
   
 
     // Stage 4: Memory Access
-    word_t ALUResultM       ;
-    word_t WriteDataM       ;
-    word_t PCPlus4M         ;
-    word_t ReadDataM        ;
-
-    logic [1:0] ResultSrcM  ;
-    logic MemWriteM         ;
 
     // Stage 5: Write Back
-    word_t ALUResultW       ;
-    word_t ReadDataW        ;
-    word_t PCPlus4W         ;
-    word_t ResultW          ;
-    reg_addr_t RdW          ;
 
-    logic [1:0] ResultSrcW  ;
 
     //===================================================
     //  Internal wires to handle hazard signals
@@ -123,7 +86,7 @@ module DataPath (
     logic StallF_bar;           //enable signal for PC register
     assign StallF_bar = ~StallF;
 
-    assign ResultSrcE0 = ResultSrcE[0];
+    assign ResultSrcE0 = e.ResultSrcE[0];
 
 
 
@@ -132,45 +95,45 @@ module DataPath (
     //====================================================
 
     //Stage 1:
-    pipo #(XLEN) stage1_PC (.clk(clk), .rst(FlushD), .enable(!StallD_bar), .in(PCF), .out(PCD)) ;
-    pipo #(XLEN) stage1_PCPlus4(.clk(clk), .rst(FlushD), .enable(!StallD_bar), .in(PCPlus4F), .out(PCPlus4D));
-    pipo #(XLEN) stage1_Instr(.clk(clk), .rst(FlushD), .enable(!StallD_bar), .in(InstrF), .out(InstrD));
-    //pipo #(XLEN) stage1_PCNext(.clk(clk), .rst(reset), .enable(enable), .in(InstrF), .out()) //???
+    pipo #(XLEN) stage1_PC (.clk(clk), .rst(FlushD), .enable(!StallD_bar), .in(f.PCF), .out(d.PCD)) ;
+    pipo #(XLEN) stage1_PCPlus4(.clk(clk), .rst(FlushD), .enable(!StallD_bar), .in(f.PCPlus4F), .out(d.PCPlus4D));
+    pipo #(XLEN) stage1_Instr(.clk(clk), .rst(FlushD), .enable(!StallD_bar), .in(f.InstrF), .out(d.InstrD));
+    //pipo #(XLEN) stage1_PCNext(.clk(clk), .rst(reset), .enable(enable), .in(f.InstrF), .out()) //???
 
     //Stage 2:
-    pipo #(XLEN) stage2_RD1 (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(RD1D), .out(RD1E));
-    pipo #(XLEN) stage2_RD2 (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(RD2D), .out(RD2E));
-    pipo #(XLEN) stage2_PC (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(PCD), .out(PCE));
+    pipo #(XLEN) stage2_RD1 (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.RD1D), .out(e.RD1E));
+    pipo #(XLEN) stage2_RD2 (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.RD2D), .out(e.RD2E));
+    pipo #(XLEN) stage2_PC (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.PCD), .out(e.PCE));
     pipo #(REG_ADDR_WIDTH) stage2_Rs1 (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(Rs1D), .out(Rs1E));
     pipo #(REG_ADDR_WIDTH) stage2_Rs2 (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(Rs2D), .out(Rs2E));
-    pipo #(REG_ADDR_WIDTH) stage2_Rd (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(RdD), .out(RdE));
-    pipo #(REG_ADDR_WIDTH) stage2_ImmExt (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(ImmExtD), .out(ImmExtE));
-    pipo #(XLEN) stage2_PCPlus4 (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(PCPlus4D), .out(PCPlus4E));
+    pipo #(REG_ADDR_WIDTH) stage2_Rd (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.RdD), .out(RdE));
+    pipo #(REG_ADDR_WIDTH) stage2_ImmExt (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.ImmExtD), .out(e.ImmExtE));
+    pipo #(XLEN) stage2_PCPlus4 (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.PCPlus4D), .out(e.PCPlus4E));
 
-    pipo #(1) stage2_RegWrite (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(RegWriteD), .out(RegWriteE));
-    pipo #(2) stage2_ResultSrc (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(ResultSrcD), .out(ResultSrcE));
-    pipo #(1) stage2_MemWrite (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(MemWriteD), .out(MemWriteE));
-    //pipo #(1) stage2_Jump (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(JumpD), .out(JumpE));
-    pipo #(1) stage2_Branch (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(BranchD), .out(BranchE));
-    pipo #(4) stage2_ALUControl (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(ALUControlD), .out(ALUControlE));
-    pipo #(1) stage2_ALUSrc (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(ALUSrcD), .out(ALUSrcE));
+    pipo #(1) stage2_RegWrite (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.RegWriteD), .out(e.RegWriteE));
+    pipo #(2) stage2_ResultSrc (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.ResultSrcD), .out(e.ResultSrcE));
+    pipo #(1) stage2_MemWrite (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.MemWriteD), .out(e.MemWriteE));
+    //pipo #(1) stage2_Jump (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(JumpD), .out(e.JumpE));
+    pipo #(1) stage2_Branch (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(BranchD), .out(e.BranchE));
+    pipo #(4) stage2_ALUControl (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.ALUControlD), .out(e.ALUControlE));
+    pipo #(1) stage2_ALUSrc (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.ALUSrcD), .out(e.ALUSrcE));
 
     //Stage3:
-    pipo #(1) stage3_RegWrite (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(RegWriteE), .out(RegWriteM));
-    pipo #(2) stage3_ResultSrc (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(ResultSrcE), .out(ResultSrcM));
-    pipo #(1) stage3_MemWrite (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(MemWriteE), .out(MemWriteM));
-    pipo #(XLEN) stage3_ALUResult (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(ALUResultE), .out(ALUResultM));
-    pipo #(XLEN) stage3_WriteData (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(WriteDataE), .out(WriteDataM));
+    pipo #(1) stage3_RegWrite (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(e.RegWriteE), .out(RegWriteM));
+    pipo #(2) stage3_ResultSrc (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(e.ResultSrcE), .out(m.ResultSrcM));
+    pipo #(1) stage3_MemWrite (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(e.MemWriteE), .out(m.MemWriteM));
+    pipo #(XLEN) stage3_ALUResult (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(e.ALUResultE), .out(m.ALUResultM));
+    pipo #(XLEN) stage3_WriteData (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(e.WriteDataE), .out(m.WriteDataM));
     pipo #(REG_ADDR_WIDTH) stage3_Rd (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(RdE), .out(RdM) );
-    pipo #(XLEN) stage3_PCPlus4 (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(PCPlus4E), .out(PCPlus4M));
+    pipo #(XLEN) stage3_PCPlus4 (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(e.PCPlus4E), .out(m.PCPlus4M));
 
     //stage4:
 
     pipo #(1) stage4_RegWrite (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(RegWriteM), .out(RegWriteW));
-    pipo #(2) stage4_ResultSrc (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(ResultSrcM), .out(ResultSrc));
-    pipo #(XLEN) stage4_ALUResult (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(ALUResultM), .out(ALUResultW));
-    pipo #(REG_ADDR_WIDTH) stage4_Rd (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(RdM), .out(RdW));
-    pipo #(XLEN) stage4_PCPlus4 (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(PCPlus4M), .out(PCPlus4W));
+    pipo #(2) stage4_ResultSrc (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(m.ResultSrcM), .out(w.ResultSrcW));
+    pipo #(XLEN) stage4_ALUResult (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(m.ALUResultM), .out(w.ALUResultW));
+    pipo #(REG_ADDR_WIDTH) stage4_Rd (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(RdM), .out(w.RdW));
+    pipo #(XLEN) stage4_PCPlus4 (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(m.PCPlus4M), .out(w.PCPlus4W));
 
     // ==================================================
     // Program Counter (PC) Logic + instruction fetch in Stage 1
@@ -178,19 +141,19 @@ module DataPath (
 
     // PC + 4
     adder pc_adder (
-        .a(PCReg),
+        .a(f.PCF),
         .b(32'd1),
-        .sum(PCPlus4F)
+        .sum(f.PCPlus4F)
     );
 
     // Select next PC value
-    assign pc_mux_in[0] = PCPlus4F;
-    assign pc_mux_in[1] = PCTargetE;
+    assign pc_mux_in[0] = f.PCPlus4F;
+    assign pc_mux_in[1] = e.PCTargetE;
 
     mux #(.SEL_WIDTH(1)) pc_mux (
         .in(pc_mux_in),
         .sel(PCSrcE),
-        .out(PCNextF)
+        .out(f.PCNextF)
     );
 
 
@@ -199,16 +162,16 @@ module DataPath (
         .clk(clk),
         .reset(reset),
         .enable(StallF_bar),
-        .PCNext(PCNextF),
-        .pc(PCF)
+        .PCNext(f.PCNextF),
+        .pc(f.PCF)
     );
 
-    assign PC = PCF;
+    assign PC = f.PCF;
 
     instr_mem InstructionMemory (
         .clk(clk),
         .address(PC),
-        .instruction(InstrF)
+        .instruction(f.InstrF)
     );
 
 
@@ -217,12 +180,12 @@ module DataPath (
     // ==================================================
 
     decoder decoder_instance (
-        .Instr(InstrD),
+        .Instr(d.InstrD),
         .decoded_instr(di)
     );
 
     Controller Controller_instance (
-        .Zero(ZeroE),
+        .Zero(e.ZeroE),
 
         .funct3(di.funct3),
         .funct7(di.funct7),
@@ -234,13 +197,13 @@ module DataPath (
 
     assign Rs1D = di.rs1;
     assign Rs2D = di.rs2;
-    assign RdD  = di.rd;
+    assign d.RdD  = di.rd;
 
-    assign RegWriteD = cs.RegWrite;
-    assign ResultSrcD = cs.ResultSrc;
-    assign MemWriteD = cs.MemWrite;
-    assign ALUSrcD = cs.ALUSrc;
-    assign ImmSrcD = cs.ImmSrc;
+    assign d.RegWriteD = cs.RegWrite;
+    assign d.ResultSrcD = cs.ResultSrc;
+    assign d.MemWriteD = cs.MemWrite;
+    assign d.ALUSrcD = cs.ALUSrc;
+    assign d.ImmSrcD = cs.ImmSrc;
 
     // ==================================================
     // Sign-extension of raw immediates in Stage 2
@@ -253,8 +216,8 @@ module DataPath (
 
     mux #(.SEL_WIDTH(2)) imm_mux (
         .in(imm_mux_in),
-        .sel(ImmSrcD),
-        .out(ImmExtD)
+        .sel(d.ImmSrcD),
+        .out(d.ImmExtD)
     );
 
 
@@ -263,75 +226,75 @@ module DataPath (
         .clk         (clk),
         .read_reg1   (Rs1D),
         .read_reg2   (Rs2D),
-        .write_reg   (RdW),
-        .write_data  (ResultW),
+        .write_reg   (w.RdW),
+        .write_data  (w.ResultW),
         .writeEnable (RegWrite),
-        .read_data1  (RD1D),
-        .read_data2  (RD2D)
+        .read_data1  (d.RD1D),
+        .read_data2  (d.RD2D)
     );
 
     // ==================================================
     // Execute Stage 
     // ==================================================
-    assign alu_mux_in[0] = WriteDataE;
-    assign alu_mux_in[1] = ImmExtE;
+    assign alu_mux_in[0] = e.WriteDataE;
+    assign alu_mux_in[1] = e.ImmExtE;
 
     mux #(.SEL_WIDTH(1)) mux_b (
         .in (alu_mux_in),
-        .sel(ALUSrcE),
-        .out(SrcBE)
+        .sel(e.ALUSrcE),
+        .out(e.SrcBE)
     );
 
     //3:1 mux outputs SrcAE for ALU SrcAE
-    assign SrcAE_mux_in[0] = RD1E;
-    assign SrcAE_mux_in[1] = ResultW;
-    assign SrcAE_mux_in[2] = ALUResultM;
+    assign SrcAE_mux_in[0] = e.RD1E;
+    assign SrcAE_mux_in[1] = w.ResultW;
+    assign SrcAE_mux_in[2] = m.ALUResultM;
 
     mux #(.SEL_WIDTH(2)) SrcAE_mux(
         .in(SrcAE_mux_in),
         .sel(ForwardAE),
-        .out(SrcAE)
+        .out(e.SrcAE)
     );
 
     //3:1 mux outputs WriteDataE for ALU SrcBE
-    assign WriteDataE_mux_in[0] = RD2E;
-    assign WriteDataE_mux_in[1] = ResultW;
-    assign WriteDataE_mux_in[2] = ALUResultM;
+    assign WriteDataE_mux_in[0] = e.RD2E;
+    assign WriteDataE_mux_in[1] = w.ResultW;
+    assign WriteDataE_mux_in[2] = m.ALUResultM;
 
     mux #(.SEL_WIDTH(2)) WriteDataE_mux(
         .in(WriteDataE_mux_in),
         .sel(ForwardEE),
-        .out(WriteDataE)
+        .out(e.WriteDataE)
     );
 
 
     alu ALU (
-        .a       (SrcAE),
-        .b       (SrcBE),
-        .control (ALUControlE),
-        .result  (ALUResultE),
-        .zero    (ZeroE)
+        .a       (e.SrcAE),
+        .b       (e.SrcBE),
+        .control (e.ALUControlE),
+        .result  (e.ALUResultE),
+        .zero    (e.ZeroE)
     );
     // PC + Immediate (for branches/jumps)
     adder pc_target_adder (
-        .a(PCE),
-        .b(ImmExtE),
-        .sum(PCTargetE)
+        .a(e.PCE),
+        .b(e.ImmExtE),
+        .sum(e.PCTargetE)
     );
     // here a mux for the forwarding
-    //assign WriteDataE = RD2E;
+    //assign WriteDataE = e.RD2E;
     //
 
     // ==================================================
     // Write-Back Result MUX
     // ==================================================
-    assign result_mux_in[RESULT_ALU]  = ALUResultM;
-    assign result_mux_in[RESULT_MEM]  = ReadDataM;
-    assign result_mux_in[RESULT_JUMP] = PCPlus4M;
+    assign result_mux_in[RESULT_ALU]  = w.ALUResultW;
+    assign result_mux_in[RESULT_MEM]  = w.ReadDataW;
+    assign result_mux_in[RESULT_JUMP] = w.PCPlus4W;
 
     mux #(.SEL_WIDTH(2)) result_mux (
         .in (result_mux_in),
         .sel(ResultSrc),
-        .out(Result)
+        .out(w.ResultW)
     );
 endmodule
