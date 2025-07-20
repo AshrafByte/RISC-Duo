@@ -46,7 +46,6 @@ module Core(
         .ALUSrc(cs.ALUSrc),
         .ImmSrc(cs.ImmSrc),
         .RegWrite(cs.RegWrite),
-        .shift(shift),
 
         .ReadData(ReadData),
         .PC(PC),
@@ -64,7 +63,6 @@ module Core(
         
         .control_signals(cs),
         .ALUControl(ALUControl),
-        .shift(shift)
     );
 
     ////////////////////

@@ -10,7 +10,6 @@ module Controller (
 
     output control_signals_t control_signals,
     output aluop_e ALUControl,
-    output logic shift 
 );
 
     // Internal decoded field
@@ -30,7 +29,6 @@ module Controller (
         .funct3(funct3),
         .funct7(funct7),
         
-        .shift(shift),
         .ALUControl(ALUControl)
     );
     
