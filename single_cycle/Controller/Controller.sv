@@ -9,7 +9,7 @@ module Controller (
     input opcode_e           op,
 
     output control_signals_t control_signals,
-    output aluop_e ALUControlو
+    output aluop_e ALUControl,
     output logic shift 
 );
 
