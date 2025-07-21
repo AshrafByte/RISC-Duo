@@ -48,6 +48,7 @@ module DataPath (
     word_t alu_mux_in    [2];
     word_t result_mux_in [4];
     word_t pc_mux_in     [2];
+    logic jump_mux_in    [2];
 
     // ==================================================
     // Internal Wires for pipeline registers
@@ -61,18 +62,9 @@ module DataPath (
     memory_stage_t m;       // Stage 4: Memory Access
     write_back_stage_t w;   // Stage 5: Write Back
 
-    // Stage 3: Execute
-
-
     word_t SrcAE_mux_in [3:0]  ;      //SrcAE Mux (output is SrcAE, inputs are RD1E, ResultW (WD), AluResultM and sel is ForwardAE)
     word_t WriteDataE_mux_in [3:0] ;     //WriteDataE mux(output is WriteDataE, inputs are RD2E, ResultW, AluResultM, and sel is ForwardEE)
   
-
-    // Stage 4: Memory Access
-
-    // Stage 5: Write Back
-
-
     //===================================================
     //  Internal wires to handle hazard signals
     //==================================================
@@ -139,6 +131,8 @@ module DataPath (
     // Program Counter (PC) Logic + instruction fetch in Stage 1
     // ==================================================
 
+    assign jump_mux_in[0] = f.InstrF; // Normal instruction fetch
+    assign jump_mux_in[1] = 1'b0;
     // PC + 4
     adder pc_adder (
         .a(f.PCF),
@@ -172,6 +166,12 @@ module DataPath (
         .clk(clk),
         .address(PC),
         .instruction(f.InstrF)
+    );
+
+    mux #(.SEL_WIDTH(1)) jump_mux (
+        .in(jump_mux_in),
+        .sel(d.JumpD),
+        .out(f.InstrF)
     );
 
 
