@@ -19,7 +19,9 @@ module DataPath (
     ResultSrcE0,
     RdM,
     RegWriteM,
-    RegWriteW
+    RegWriteW,
+    RdW,
+    MemReadE
 );
     input logic clk;
     input logic reset;
@@ -39,6 +41,8 @@ module DataPath (
     output logic ResultSrcE0;
     output logic RegWriteM;
     output logic RegWriteW;
+    output reg_addr_t RdW;
+    output logic MemReadE; // to add later
 
     // ==================================================
     // Internal Wires
@@ -60,7 +64,7 @@ module DataPath (
     decoding_stage_t d;      // Stage 2: Decode 
     execute_stage_t e;      // Stage 3: Execute
     memory_stage_t m;       // Stage 4: Memory Access
-    write_back_stage_t w;   // Stage 5: Write Back
+    write_back_stage_t w;   // Stage 5: Write Back 
 
     word_t SrcAE_mux_in [3:0]  ;      //SrcAE Mux (output is SrcAE, inputs are RD1E, ResultW (WD), AluResultM and sel is ForwardAE)
     word_t WriteDataE_mux_in [3:0] ;     //WriteDataE mux(output is WriteDataE, inputs are RD2E, ResultW, AluResultM, and sel is ForwardEE)
@@ -80,6 +84,7 @@ module DataPath (
 
     assign ResultSrcE0 = e.ResultSrcE[0];
 
+    assign RdW = w.RdW;
 
 
     //===================================================
@@ -294,7 +299,7 @@ module DataPath (
 
     mux #(.SEL_WIDTH(2)) result_mux (
         .in (result_mux_in),
-        .sel(ResultSrc),
+        .sel(w.ResultSrcW),
         .out(w.ResultW)
     );
 endmodule
