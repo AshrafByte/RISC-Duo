@@ -7,7 +7,7 @@ module alu_decoder (
     input  aluop_type_e ALUOp,
     input  funct3_e     funct3,
     input  funct7_e     funct7,
-    output aluop_e      ALUControl,
+    output aluop_e      ALUControl
 );
 
     always_comb begin
@@ -33,6 +33,7 @@ module alu_decoder (
             default:      return ALU_ADD;
         endcase
     endfunction
+
 
 
     function automatic aluop_e decode_funct7_variant(

@@ -62,10 +62,10 @@ module Core(
         .op(di.op),
         
         .control_signals(cs),
-        .ALUControl(ALUControl),
+        .ALUControl(ALUControl)
     );
 
     ////////////////////
     assign MemWrite = cs.MemWrite;
-
+    
 endmodule

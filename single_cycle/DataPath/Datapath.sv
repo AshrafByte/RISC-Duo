@@ -17,7 +17,7 @@ module DataPath (
     input  imm_j_raw_t  imm_j_raw,
 
     // === Control Signals ===
-    input  logic        PCSrc,
+  input  logic [1:0]       PCSrc,
     input  resultsrc_e  ResultSrc,
     input  aluop_e      ALUControl,
     input  logic        ALUSrc,
@@ -30,23 +30,24 @@ module DataPath (
     // === Outputs ===
     output word_t       PC,
     output logic        Zero,
-    output word_t       ALUResult,
+    output signed_word_t       ALUResult,
     output word_t       WriteData
 );
 
     // ==================================================
     // Internal Wires
     // ==================================================
-    word_t PCNext, ImmExt, PCTarget, PCPlus4, Result, SrcB, PCReg;
+    word_t PCNext, PCTarget, PCPlus4, Result, SrcB, PCReg;
+    signed_word_t ImmExt;
+  
     word_t imm_mux_in    [4];
     word_t alu_mux_in    [2];
     word_t result_mux_in [4];
-    word_t pc_mux_in     [2];
+    word_t pc_mux_in     [4];
 
     // ==================================================
     // Sign-extension of raw immediates
     // ==================================================
-    
     assign imm_mux_in[IMMSRC_I] = {{20{imm_i_raw[11]}}, imm_i_raw};
     assign imm_mux_in[IMMSRC_S] = {{20{imm_s_raw[11]}}, imm_s_raw};
     assign imm_mux_in[IMMSRC_B] = {{19{imm_b_raw[12]}}, imm_b_raw};
@@ -65,7 +66,7 @@ module DataPath (
     // PC + 4
     adder pc_adder (
         .a(PCReg),
-        .b(32'd1),
+        .b(32'd4),
         .sum(PCPlus4)
     );
 
@@ -79,8 +80,9 @@ module DataPath (
     // Select next PC value
     assign pc_mux_in[0] = PCPlus4;
     assign pc_mux_in[1] = PCTarget;
+    assign pc_mux_in[2] = ALUResult;
 
-    mux #(.SEL_WIDTH(1)) pc_mux (
+  mux #(.SEL_WIDTH(2)) pc_mux (
         .in(pc_mux_in),
         .sel(PCSrc),
         .out(PCNext)

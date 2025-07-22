@@ -3,18 +3,18 @@
 import types_pkg::*;
 
 module alu (
-    input  word_t   a,
-    input  word_t   b,
-    input  aluop_e  control,  
-    output word_t   result,
-    output logic    zero
+    input  word_t           a,
+    input  word_t           b,
+    input  aluop_e          control,  
+    output signed_word_t    result,
+    output logic            zero
 );
 
     signed_word_t sa, sb;
     assign sa = a;
     assign sb = b;
 
-    always_comb begin
+   always_comb begin
         unique case (control)
             ALU_ADD:   result = sa + sb;
             ALU_SUB:   result = sa - sb;
@@ -30,6 +30,10 @@ module alu (
         endcase
 
         zero = (result == '0);
+        
+        
     end
+
+
 
 endmodule
