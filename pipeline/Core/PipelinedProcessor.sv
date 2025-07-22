@@ -20,8 +20,8 @@ module DataPath (
     RdM,
     RegWriteM,
     RegWriteW,
-    RdW,
-    MemReadE
+    RdW
+    // MemReadE
 );
     input logic clk;
     input logic reset;
@@ -42,7 +42,7 @@ module DataPath (
     output logic RegWriteM;
     output logic RegWriteW;
     output reg_addr_t RdW;
-    output logic MemReadE; // to add later
+    // output logic MemReadE; // to add later
 
     // ==================================================
     // Internal Wires

@@ -1,6 +1,9 @@
+import types_pkg::*;
+
 module Hazard_unit(
     //forwarding
     input logic RegWriteM,
+    input logic RegWriteW,
     input reg_addr_t RdM,
     input reg_addr_t RdW,       //w.RdW
     input reg_addr_t Rs2E,
@@ -12,7 +15,7 @@ module Hazard_unit(
 
     //load use
     input logic clk,
-    input logic MemReadE,       //e.MemWriteE?
+    // input logic MemReadE,
     input reg_addr_t RdE,
     input reg_addr_t Rs1D,
     input reg_addr_t Rs2D,
@@ -55,7 +58,7 @@ module Hazard_unit(
     logic Rs1_sel, Rs2_sel;
     always_ff @( posedge clk ) begin
 
-        if(MemReadE && (RdE == Rs1D || RdE == Rs2D) ) begin
+        if(ResultSrcE0 && (RdE == Rs1D || RdE == Rs2D) ) begin
             delayed_forward <= 2'b01;
             if (RdE == Rs1D) begin
                 Rs1_sel <= 'b1;
@@ -73,11 +76,11 @@ module Hazard_unit(
         end
 
     end
-    assign ForwardAE = (delayed_forward & !Rs1_Rs2_sel) || fwd_AE;
-    assign ForwardEE = (delayed_forward & Rs1_Rs2_sel) || fwd_EE;
+    assign ForwardAE = (delayed_forward & Rs1_sel) || fwd_AE;
+    assign ForwardEE = (delayed_forward & Rs2_sel) || fwd_EE;
     logic flushE_load;
     always_comb begin
-        if(MemReadE && (RdE == Rs1D || RdE == Rs2D) ) begin
+        if(ResultSrcE0 && (RdE == Rs1D || RdE == Rs2D) ) begin
             StallF = 'b1;
             StallD = 'b1;
             flushE_load = 'b1;
@@ -90,27 +93,27 @@ module Hazard_unit(
 
 
     //handle branches and flushing
-    assign FlushD = PCsrcE;
-    assign FlushE = PCsrcE || flushE_load;
+    assign FlushD = PCSrcE;
+    assign FlushE = PCSrcE || flushE_load;
 endmodule
 
 
 //extra can be removed?
-module load_store_unit(
-    input logic MemReadM,       //m.MemWriteM?
-    input logic MemWriteE,      //m.MemWriteE?
-    input reg_addr_t RdM,
-    input reg_addr_t Rs2E,
+// module load_store_unit(
+//     input logic MemReadM,       //m.MemWriteM?
+//     input logic MemWriteE,      //m.MemWriteE?
+//     input reg_addr_t RdM,
+//     input reg_addr_t Rs2E,
 
-    output logic ForwardMM          //new output signal?
-);
+//     output logic ForwardMM          //new output signal?
+// );
 
-    always_comb begin
-        if(MemRead && MemWriteE && RdM == Rs2E) begin
-            ForwardMM = 'b1;
-        end else begin
-            ForwardMM = 'b0;
-        end
-    end
+//     always_comb begin
+//         if(MemRead && MemWriteE && RdM == Rs2E) begin
+//             ForwardMM = 'b1;
+//         end else begin
+//             ForwardMM = 'b0;
+//         end
+//     end
 
-endmodule
+// endmodule

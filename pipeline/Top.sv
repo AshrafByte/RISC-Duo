@@ -22,7 +22,7 @@ module Top (
    logic RegWriteM   ;
    logic RegWriteW   ;
    logic PCSrcE      ;
-   logic MemReadE    ;
+//    logic MemReadE    ;
 
  // ===Processor===
  DataPath RISCVPipeline(
@@ -44,8 +44,8 @@ module Top (
      .ResultSrcE0(ResultSrcE0),
      .RegWriteM(RegWriteM),
      .RegWriteW(RegWriteW),
-     .RdW(RdW),
-     .MemReadE(MemReadE)
+     .RdW(RdW)
+    //  .MemReadE(MemReadE)
  );
 
 // ===Hazard Unit===
@@ -61,7 +61,7 @@ Hazard_unit HazardUnit(
      .ForwardEE(ForwardEE),
 
      .clk(clk),
-     .MemReadE(MemReadE),
+    //  .MemReadE(MemReadE),
      .RdE(RdE),
      .Rs1D(Rs1D),
      .Rs2D(Rs2D),
