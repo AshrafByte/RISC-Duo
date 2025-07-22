@@ -164,4 +164,75 @@ package types_pkg;
         logic        RegWrite;
     } control_signals_t;
 
+    typedef struct packed {
+        word_t PCF      ;    
+        word_t PCNextF  ; 
+        word_t InstrF   ;
+        word_t PCPlus4F ;
+    } fetch_stage_t;
+
+    typedef struct packed {
+        word_t InstrD       ;
+        word_t PCD          ;
+        reg_addr_t RdD      ;
+        word_t RD1D         ;
+        word_t RD2D         ;
+        word_t ImmExtD      ;
+        word_t PCPlus4D     ;
+        aluop_e  ALUControlD;
+
+
+        logic RegWriteD         ;
+        logic ALUSrcD           ;
+        logic [1:0] ImmSrcD     ;
+        logic [1:0] ResultSrcD  ;
+        logic MemWriteD         ;
+        logic JumpD             ; //Was missing
+        logic BranchD           ; //was missing
+    } decoding_stage_t;
+
+    typedef struct packed {
+        logic RegWriteE         ;
+        logic [1:0] ResultSrcE  ;
+        logic MemWriteE         ;
+        logic ALUSrcE           ;
+        logic JumpE             ;
+        logic BranchE           ;
+        logic [1:0] ALUOpE      ;
+        logic ZeroE             ;
+        aluop_e  ALUControlE    ;
+
+        word_t RD1E             ;
+        word_t RD2E             ;
+        word_t PCE              ;
+        word_t ImmExtE          ;
+        word_t PCPlus4E         ;
+        word_t PCTargetE        ;
+        word_t SrcAE            ;
+        word_t SrcBE            ;
+        word_t ALUResultE       ;
+        word_t WriteDataE       ; 
+    } execute_stage_t;
+
+    typedef struct packed {
+        word_t ALUResultM       ;
+        word_t WriteDataM       ;
+        word_t PCPlus4M         ;
+        word_t ReadDataM        ;
+
+        logic [1:0] ResultSrcM  ;
+        logic MemWriteM         ;
+    } memory_stage_t;
+
+    typedef struct packed {
+        word_t ALUResultW       ;
+        word_t ReadDataW        ;
+        word_t PCPlus4W         ;
+        word_t ResultW          ;
+        reg_addr_t RdW          ;
+
+        logic [1:0] ResultSrcW  ;
+    } write_back_stage_t;
+
+
 endpackage

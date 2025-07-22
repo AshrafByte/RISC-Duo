@@ -4,7 +4,8 @@ import types_pkg::*;
 
 module pc (
     input  logic            clk,
-    input  logic            reset,     
+    input  logic            reset,
+    input  logic            enable;   
     input  address_t        PCNext,
     output address_t        pc
 );
@@ -12,7 +13,7 @@ module pc (
     always_ff @(posedge clk) begin
         if (reset)
             pc <= '0;
-        else
+        else if(enable)
             pc <= PCNext;
     end
 

@@ -6,40 +6,78 @@ module Top (
     input logic reset
 );
  // === Internal Wires ===
-    word_t PC;
-    word_t WriteData;
-    address_t DataAdr;
-    word_t ReadData;
-    word_t Instr;
-    logic MemWrite;
-
- // === Memories ===
- data_mem DataMemory (
-    .clk(clk),
-    .write_enable(MemWrite),
-    .data_address(DataAdr[ADDR_WIDTH-1:0]),  // Use only lower address bits
-    .write_data(WriteData),
-    .read_data(ReadData)
- );
-
- instr_mem InstructionMemory (
-    .clk(clk),
-    .address(PC),  // Use only lower address bits
-    .instruction(Instr)
- );
+   logic StallF ;
+   logic StallD ;
+   logic FlushD ;
+   logic FlushE ;
+   logic [1:0] ForwardAE, ForwardEE;
+   reg_addr_t Rs1D ;
+   reg_addr_t Rs2D ;
+   reg_addr_t RdE  ;
+   reg_addr_t Rs2E ;
+   reg_addr_t Rs1E ;
+   reg_addr_t RdM  ;
+   reg_addr_t RdW  ;
+   logic ResultSrcE0 ;
+   logic RegWriteM   ;
+   logic RegWriteW   ;
+   logic PCSrcE      ;
+   logic MemReadE    ;
 
  // ===Processor===
- Core RISCVSingle(
-    .clk(clk),
-    .reset(reset),
-    .Instr(Instr),
-    .ReadData(ReadData),
-
-    .PC(PC),
-    .WriteData(WriteData),
-    .ALUResult(DataAdr),
-    .MemWrite(MemWrite)
+ DataPath RISCVPipeline(
+     .clk(clk),
+     .reset(reset),
+     .StallF(StallF),
+     .StallD(StallD),
+     .FlushD(FlushD),
+     .FlushE(FlushE),
+     .ForwardAE(ForwardAE),
+     .ForwardEE(ForwardEE),
+     .Rs1D(Rs1D),
+     .Rs2D(Rs2D),
+     .RdE(RdE),
+     .Rs2E(Rs2E),
+     .Rs1E(Rs1E),
+     .RdM(RdM),
+     .PCSrcE(PCSrcE),
+     .ResultSrcE0(ResultSrcE0),
+     .RegWriteM(RegWriteM),
+     .RegWriteW(RegWriteW),
+     .RdW(RdW),
+     .MemReadE(MemReadE)
  );
+
+// ===Hazard Unit===
+Hazard_unit HazardUnit(
+     .RegWriteM(RegWriteM),
+     .RdM(RdM),
+     .RdW(RdW),
+     .Rs2E(Rs2E),
+     .Rs1E(Rs1E),
+     .ResultSrcE0(ResultSrcE0),
+
+     .ForwardAE(ForwardAE),
+     .ForwardEE(ForwardEE),
+
+     .clk(clk),
+     .MemReadE(MemReadE),
+     .RdE(RdE),
+     .Rs1D(Rs1D),
+     .Rs2D(Rs2D),
+
+     .StallF(StallF),
+     .StallD(StallD),
+     .FlushE(FlushE),
+
+     .PCSrcE(PCSrcE),
+
+     .FlushD(FlushD),
+     .FluchE(FlushE)
+ );
+
 endmodule
+
+
 
 
