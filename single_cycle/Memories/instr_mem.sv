@@ -10,17 +10,17 @@ module instr_mem(
     
     
 
-    //internal memory, 512 location. Each location is of 32 bit width
-    word_t memory [MEM_SIZE];
+    //internal instruction_memory, 512 location. Each location is of 32 bit width
+    word_t instruction_memory [MEM_SIZE];
 
-    // Initialize memory from file
+    // Initialize instruction_memory from file
     initial begin
-        $readmemh("inst.mem", memory);
+        $readmemh("inst.mem", instruction_memory);
     end
 
     //decoding the instruction
     always_comb
-        instruction <= memory[address];
+        instruction <= instruction_memory[address];
       
 
     //decoding the instruction
