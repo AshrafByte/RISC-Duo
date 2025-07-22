@@ -20,8 +20,9 @@ module regFile (
 
     // Sequential write (single driver)
     always_ff @(posedge clk) begin
-        if (writeEnable && write_reg != 5'd0)
+        if (writeEnable && write_reg != 5'd0) begin
             registers[write_reg] <= write_data;
+        end
+     
     end
-
 endmodule

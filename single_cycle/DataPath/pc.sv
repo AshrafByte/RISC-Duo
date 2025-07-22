@@ -5,14 +5,15 @@ import types_pkg::*;
 module pc (
     input  logic            clk,
     input  logic            reset,     
-    input  address_t        PCNext,
-    output address_t        pc
+    input  word_t           PCNext,    // Change to word_t to match datapath
+    output word_t           pc         // Change to word_t to match datapath
 );
 
     always_ff @(posedge clk) begin
-        if (reset)
+        if (reset) 
             pc <= '0;
-        else
+          
+         else 
             pc <= PCNext;
     end
 

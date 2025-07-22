@@ -12,11 +12,12 @@ module data_mem(
 
 
     word_t data_memory [MEM_SIZE];
+    assign read_data = data_memory[data_address];
 
-    always_ff@(posedge clk)begin
+    always_ff@(posedge clk)
         if(write_enable) data_memory[data_address] <= write_data;
-        else read_data <= data_memory[data_address];
-    end
+    
+
 
     // always_ff@(posedge clk)begin
     //     if(write_enable)

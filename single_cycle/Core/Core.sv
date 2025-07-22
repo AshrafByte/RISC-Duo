@@ -67,5 +67,5 @@ module Core(
 
     ////////////////////
     assign MemWrite = cs.MemWrite;
-
+    
 endmodule
