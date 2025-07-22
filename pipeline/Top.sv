@@ -49,8 +49,9 @@ module Top (
  );
 
 // ===Hazard Unit===
-Hazard_unit HazardUnit(
+HazardUnit Hazard_unit(
      .RegWriteM(RegWriteM),
+     .RegWriteW(RegWriteW),
      .RdM(RdM),
      .RdW(RdW),
      .Rs2E(Rs2E),

@@ -1,6 +1,6 @@
 import types_pkg::*;
 
-module Hazard_unit(
+module HazardUnit(
     //forwarding
     input logic RegWriteM,
     input logic RegWriteW,
@@ -20,7 +20,7 @@ module Hazard_unit(
     input reg_addr_t Rs1D,
     input reg_addr_t Rs2D,
 
-    output logic StallF
+    output logic StallF,
     output logic StallD,
     output logic FlushE,
 

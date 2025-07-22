@@ -5,7 +5,7 @@ import types_pkg::*;
 module pc (
     input  logic            clk,
     input  logic            reset,
-    input  logic            enable;   
+    input  logic            enable,
     input  address_t        PCNext,
     output address_t        pc
 );
