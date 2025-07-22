@@ -43,12 +43,22 @@ module main_decoder (
                 .aluop(ALUOP_BRANCH)
             );
 
-            OP_J_TYPE: setControlSignals(
-                .pcsrc(1),
+           OP_JAL_TYPE: setControlSignals(
+             .pcsrc(1),
                 .resultsrc(RESULT_JUMP),
                 .memwrite(0),
                 .alusrc(1),
                 .immsrc(IMMSRC_J),
+                .regwrite(1),
+                .aluop(ALUOP_LUI)
+            );
+
+            OP_JALR_TYPE: setControlSignals(
+              .pcsrc(2),
+                .resultsrc(RESULT_JUMP),
+                .memwrite(0),
+                .alusrc(1),
+                .immsrc(IMMSRC_I),
                 .regwrite(1),
                 .aluop(ALUOP_LUI)
             );
@@ -90,7 +100,7 @@ module main_decoder (
 
 
     function automatic void setControlSignals(
-            input logic        pcsrc,
+      input logic [1:0]        pcsrc,
             input resultsrc_e  resultsrc,
             input logic        memwrite,
             input logic        alusrc,
