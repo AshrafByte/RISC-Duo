@@ -28,8 +28,8 @@ module Hazard_unit(
     //branch
     input logic PCSrcE,
 
-    output logic FlushD,
-    output logic FluchE
+    output logic FlushD
+    // output logic FluchE
     );
 
     //handle forwarding

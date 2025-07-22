@@ -72,8 +72,8 @@ Hazard_unit HazardUnit(
 
      .PCSrcE(PCSrcE),
 
-     .FlushD(FlushD),
-     .FluchE(FlushE)
+     .FlushD(FlushD)
+    //  .FluchE(FlushE)
  );
 
 endmodule
