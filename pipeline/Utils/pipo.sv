@@ -10,7 +10,7 @@ module pipo #(
     output logic [WIDTH-1:0] out
 );
 
-    always @(posedge clk or posedge rst) begin      //should be synchronous?
+    always_ff @(posedge clk or posedge rst) begin      //should be synchronous?
         if (rst)
             out <= '0;
         else if (enable)
