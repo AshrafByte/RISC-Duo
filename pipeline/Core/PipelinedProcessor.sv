@@ -111,7 +111,7 @@ module DataPath (
     pipo #(1) stage2_RegWrite (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.RegWriteD), .out(e.RegWriteE));
     pipo #(2) stage2_ResultSrc (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.ResultSrcD), .out(e.ResultSrcE));
     pipo #(1) stage2_MemWrite (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.MemWriteD), .out(e.MemWriteE));
-    //pipo #(1) stage2_Jump (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(JumpD), .out(e.JumpE));
+    //pipo #(1) stage2_Jump (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.JumpD), .out(e.JumpE));
     pipo #(1) stage2_Branch (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.BranchD), .out(e.BranchE));
     pipo #(4) stage2_ALUControl (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.ALUControlD), .out(e.ALUControlE));
     pipo #(1) stage2_ALUSrc (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.ALUSrcD), .out(e.ALUSrcE));
