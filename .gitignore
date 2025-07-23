@@ -113,3 +113,6 @@ desktop.ini
 # Auto-generated memory/data files
 *.mem
 inst.mem
+
+
+.library_mapping.xml
