@@ -198,7 +198,7 @@ module DataPath (
         .op(di.op),
         
         .control_signals(cs),
-        .ALUControl(ALUControl)
+        .ALUControl(d.ALUControlD)
     );
 
     assign Rs1D = di.rs1;
@@ -234,7 +234,7 @@ module DataPath (
         .read_reg2   (Rs2D),
         .write_reg   (w.RdW),
         .write_data  (w.ResultW),
-        .writeEnable (RegWrite),
+        .writeEnable (RegWriteW),
         .read_data1  (d.RD1D),
         .read_data2  (d.RD2D)
     );
