@@ -31,12 +31,12 @@
 // 0x078   | 008CAE03     | lw   x28, 8(x25)       # Load from [0x108] to x28 (15)
 // 0x07C   | 01A08863     | beq  x1, x26, 16       # Branch if x1 == x26 (should branch)
 // 0x080   | 3E700E93     | addi x29, x0, 999      # Should be skipped
-// 0x084   | 22B00E93     | addi x29, x0, 555      # x29 = 555 (executed)
-// 0x088   | 00208463     | beq  x1, x2, 8         # Branch if x1 == x2 (should not branch)
+// 0x084   | 22B00E93     | addi x29, x0, 555      # x29 = 555 (skipped)
+// 0x088   | 00208463     | beq  x1, x2, 8         # Branch if x1 == x2 (should not branch)(skipped)
 // 0x08C   | 30900F13     | addi x30, x0, 777      # x30 = 777 (executed)
-// 0x090   | 008000EF     | jal  x31, 8            # Jump to function, save return addr
+// 0x090   | 00800FEF     | jal  x31, 8            # Jump to function, save return addr
 // 0x094   | 06408093     | addi x1, x1, 100       # x1 = x1 + 100 (after return)
-// 0x098   | 00000063     | beq  x0, x0, 0         # Infinite loop
+// 0x098   | 00008063     | beq  x1, x0, 0         # shouldn't branch
 // 0x09C   | 03210113     | addi x2, x2, 50        # x2 = x2 + 50
 // 0x0A0   | 000F8067     | jalr x0, x31, 0        # Return to caller
 
