@@ -1,5 +1,5 @@
 
-package types_pkg;
+    package types_pkg;
 
     // =============================================================
     // Core Configuration
@@ -15,7 +15,6 @@ package types_pkg;
     // Basic Typedefs
     // =============================================================
     typedef logic [XLEN-1:0]                word_t;
-    typedef logic [(XLEN/4)-1:0]                word_4t;
     typedef logic signed [XLEN-1:0]         signed_word_t;
     typedef logic [$clog2(REG_COUNT)-1:0]   reg_addr_t;
     typedef logic [ADDR_WIDTH-1:0]          address_t;
@@ -71,7 +70,8 @@ package types_pkg;
         OP_S_TYPE        = 7'b010_0011,
         OP_R_TYPE        = 7'b011_0011,
         OP_B_TYPE        = 7'b110_0011,
-        OP_J_TYPE        = 7'b110_1111,
+        OP_JALR_TYPE     = 7'b110_0111,
+        OP_JAL_TYPE      = 7'b110_1111,
         OP_RV64_TYPE     = 7'b011_1011
     } opcode_e;
 
@@ -156,7 +156,7 @@ package types_pkg;
     } decoded_instr_t;
 
     typedef struct packed {
-        logic        PCSrc;
+        logic [1:0]  PCSrc;
         resultsrc_e  ResultSrc;
         logic        MemWrite;
         logic        ALUSrc;
