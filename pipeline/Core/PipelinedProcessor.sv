@@ -47,12 +47,13 @@ module DataPath (
     // ==================================================
     // Internal Wires
     // ==================================================
-    word_t PCNext, ImmExt, PCTarget, PCPlus4, Result, SrcB, PCReg;
     word_t imm_mux_in    [4];
     word_t alu_mux_in    [2];
     word_t result_mux_in [4];
     word_t pc_mux_in     [2];
     logic jump_mux_in    [2];
+    // for the PC register
+    word_t PC;
 
     // ==================================================
     // Internal Wires for pipeline registers
@@ -111,7 +112,7 @@ module DataPath (
     pipo #(2) stage2_ResultSrc (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.ResultSrcD), .out(e.ResultSrcE));
     pipo #(1) stage2_MemWrite (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.MemWriteD), .out(e.MemWriteE));
     //pipo #(1) stage2_Jump (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(JumpD), .out(e.JumpE));
-    pipo #(1) stage2_Branch (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(BranchD), .out(e.BranchE));
+    pipo #(1) stage2_Branch (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.BranchD), .out(e.BranchE));
     pipo #(4) stage2_ALUControl (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.ALUControlD), .out(e.ALUControlE));
     pipo #(1) stage2_ALUSrc (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.ALUSrcD), .out(e.ALUSrcE));
 
