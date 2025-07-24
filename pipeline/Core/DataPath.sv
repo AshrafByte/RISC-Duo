@@ -139,8 +139,8 @@ module DataPath (
     // Program Counter (PC) Logic + instruction fetch in Stage 1
     // ==================================================
 
-    assign jump_mux_in[0] = f.InstrF; // Normal instruction fetch
-    assign jump_mux_in[1] = 1'b0;
+    // assign jump_mux_in[0] = f.InstrF; // Normal instruction fetch
+    // assign jump_mux_in[1] = 1'b0;
     // PC + 4
     adder pc_adder (
         .a(f.PCF),
@@ -151,6 +151,7 @@ module DataPath (
     // Select next PC value
     assign pc_mux_in[0] = f.PCPlus4F;
     assign pc_mux_in[1] = e.PCTargetE;
+
 
     mux #(.SEL_WIDTH(1)) pc_mux (
         .in(pc_mux_in),
@@ -176,11 +177,11 @@ module DataPath (
         .instruction(f.InstrF)
     );
 
-    mux #(.SEL_WIDTH(1)) jump_mux (
-        .in(jump_mux_in),
-        .sel(d.JumpD),
-        .out(f.InstrF)
-    );
+    // mux #(.SEL_WIDTH(1)) jump_mux (
+    //     .in(jump_mux_in),
+    //     .sel(d.JumpD),
+    //     .out(f.InstrF)
+    // );
 
 
     // ==================================================
