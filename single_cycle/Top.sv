@@ -24,7 +24,7 @@ module Top (
 
  instr_mem InstructionMemory (
     .clk(clk),
-    .address(PC[ADDR_WIDTH-1:2]),  // Use only lower address bits
+    .address(PC[ADDR_WIDTH+1:2]),  // Use only lower address bits
     .instruction(Instr)
  );
 

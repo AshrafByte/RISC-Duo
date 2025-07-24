@@ -1,6 +1,6 @@
 vlog -f src_files.f
 
-vsim -voptargs=+acc work.testbench -classdebug
+vsim -voptargs=+acc work.tb -classdebug
 
 add wave *
 add wave dut.DataMemory.data_memory

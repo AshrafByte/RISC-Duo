@@ -14,6 +14,8 @@ program test_program (
     assign PC = $root.tb.dut.PC;
     assign Instr = $root.tb.dut.Instr;
 
+   
+
     
   	 int count = 0;
     initial begin

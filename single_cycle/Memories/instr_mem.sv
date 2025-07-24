@@ -15,7 +15,7 @@ module instr_mem(
 
     // Initialize instruction_memory from file
     initial begin
-        $readmemh("inst.mem", instruction_memory);
+        $readmemh("InstructionData.dat", instruction_memory);
     end
 
     //decoding the instruction
