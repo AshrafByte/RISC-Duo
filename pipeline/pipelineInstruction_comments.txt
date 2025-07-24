@@ -1,0 +1,33 @@
+# Initialize registers
+addi x1, x0, 10       # x1 = 10
+addi x2, x0, 5        # x2 = 5
+add  x3, x1, x2       # x3 = x1 + x2 = 15 (RAW hazard test)
+sub  x4, x3, x2       # x4 = x3 - x2 = 10 (forwarding should resolve)
+
+# Load-use hazard test
+addi x10, x0, 32      # x10 = address in memory
+sw   x1, 0(x10)       # store x1 at mem[x10]
+lw   x6, 0(x10)       # load x6 <- mem[x10]
+add  x7, x6, x2       # RAW hazard with load (needs stall + forwarding)
+
+# Control hazard (branch)
+beq  x1, x4, skip     # should take the branch (x1 == x4 == 10)
+addi x5, x0, 111      # skipped if branch taken
+jal  x0, done         # jump over skipped label
+skip:
+addi x5, x0, 222      # executed if branch taken
+done:
+
+
+9300000a    # addi x1, x0, 10
+13010005    # addi x2, x0, 5
+b3010802    # add x3, x1, x2
+33020140    # sub x4, x3, x2
+13050020    # addi x10, x0, 32
+23002001    # sw x1, 0(x10)
+03052300    # lw x6, 0(x10)
+b3013002    # add x7, x6, x2
+63068204    # beq x1, x4, 8
+9302006f    # addi x5, x0, 111 (skipped if branch taken)
+6f000400    # jal x0, 4
+930200de    # addi x5, x0, 222

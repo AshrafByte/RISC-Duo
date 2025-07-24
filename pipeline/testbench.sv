@@ -20,8 +20,8 @@ always #(CLK_PERIOD/2) clk=~clk;
 
 initial begin
     $readmemh("DataMemory.dat", dut.DataMemory.data_memory);
-    $readmemh("InstructionData.dat", dut.InstructionMemory.instruction_memory);
-    $readmemh("RegisterData.dat", dut.RISCVSingle.DataPath_instance.RegisterFile.registers);
+    $readmemh("pipelineInstructionData.dat", dut.RISCVPipeline.InstructionMemory.instruction_memory);
+    $readmemh("RegisterData.dat", dut.RISCVPipeline.RegisterFile.registers);
 end
     // add wave dut.DataMemory.data_memory
     // add wave dut.InstructionMemory.instruction_memory
