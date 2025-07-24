@@ -132,6 +132,8 @@ module DataPath (
     pipo #(XLEN) stage4_ALUResult (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(m.ALUResultM), .out(w.ALUResultW));
     pipo #(REG_ADDR_WIDTH) stage4_Rd (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(RdM), .out(w.RdW));
     pipo #(XLEN) stage4_PCPlus4 (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(m.PCPlus4M), .out(w.PCPlus4W));
+    // sama to review
+    pipo #(XLEN) stage4_ReadData (.clk(clk), .rst(stage_rst), .enable(stage_enable), .in(m.ReadDataM), .out(w.ReadDataW));
 
     // ==================================================
     // Program Counter (PC) Logic + instruction fetch in Stage 1
@@ -290,6 +292,17 @@ module DataPath (
     // here a mux for the forwarding
     //assign WriteDataE = e.RD2E;
     //
+
+    // ==================================================
+    // Memory Stage
+    // ==================================================
+    data_mem DataMemory (
+        .clk(clk),
+        .write_enable(m.MemWriteM),
+        .data_address(m.ALUResultM),
+        .write_data(m.WriteDataM),
+        .read_data(m.ReadDataM)
+    );
 
     // ==================================================
     // Write-Back Result MUX
