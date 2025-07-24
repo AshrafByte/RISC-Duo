@@ -27,7 +27,8 @@ transcript
 *.sdf
 *.vstf
 *.mti
-
+*.mpf
+*.mpf_new
 # Questa/ModelSim INI files
 modelsim.ini
 *.ini
