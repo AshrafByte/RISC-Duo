@@ -113,7 +113,9 @@ module DataPath (
     pipo #(1) stage2_MemWrite (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.MemWriteD), .out(e.MemWriteE));
     //pipo #(1) stage2_Jump (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.JumpD), .out(e.JumpE));
     //pipo #(1) stage2_Branch (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.BranchD), .out(e.BranchE));
-    pipo #(4) stage2_ALUControl (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.ALUControlD), .out(logic'(e.ALUControlE)));
+    aluop_t ALUControl_raw;
+    assign e.ALUControlE = aluop_e'(ALUControl_raw);
+    pipo #(4) stage2_ALUControl (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.ALUControlD), .out(ALUControl_raw));
     pipo #(1) stage2_ALUSrc (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.ALUSrcD), .out(e.ALUSrcE));
 
     //Stage3:

@@ -98,7 +98,8 @@
     // =============================================================
 
     // Specific ALU operations (output of alu_control)
-    typedef enum reg [3:0] {
+    typedef reg[3:0] aluop_t;
+    typedef enum aluop_t {
         ALU_ADD   = 4'b0000,
         ALU_SUB   = 4'b0001,
         ALU_AND   = 4'b0010,
