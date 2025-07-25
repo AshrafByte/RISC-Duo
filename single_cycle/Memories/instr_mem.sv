@@ -13,11 +13,6 @@ module instr_mem(
     //internal instruction_memory, 512 location. Each location is of 32 bit width
     word_t instruction_memory [MEM_SIZE];
 
-    // Initialize instruction_memory from file
-    initial begin
-        $readmemh("InstructionData.dat", instruction_memory);
-    end
-
     //decoding the instruction
     always_comb
         instruction <= instruction_memory[address];

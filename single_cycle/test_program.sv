@@ -17,7 +17,7 @@ program test_program (
    
 
     
-  	 int count = 0;
+  	int count = 0;
     initial begin
         $display("=== Starting RISC-V Processor Test ===");
         
