@@ -19,7 +19,7 @@ always #(CLK_PERIOD/2) clk=~clk;
 // end
 
 initial begin
-    $readmemh("DataMemory.dat", dut.DataMemory.data_memory);
+    $readmemh("DataMemory.dat", dut.RISCVPipeline.DataMemory.data_memory);
     $readmemh("pipelineInstructionData.dat", dut.RISCVPipeline.InstructionMemory.instruction_memory);
     $readmemh("RegisterData.dat", dut.RISCVPipeline.RegisterFile.registers);
 end
