@@ -167,11 +167,11 @@ module DataPath (
         .clk(clk),
         .reset(reset),
         .enable(StallF_bar),
-        .PCNext(f.PCNextF[address_t-1:0]), // Ensure the size matches address_t
+        .PCNext(f.PCNextF[ADDR_WIDTH-1:0]), // Ensure the size matches address_t
         .pc(PC)
     );
 
-    assign PC = f.PCF[address_t-1:0];
+    assign PC = f.PCF[ADDR_WIDTH-1:0];
 
     instr_mem InstructionMemory (
         .clk(clk),
