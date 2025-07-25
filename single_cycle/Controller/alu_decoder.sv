@@ -3,7 +3,7 @@
 import types_pkg::*;
 
 module alu_decoder (
-    input  opcode_e op,
+    input  opcode_e     op,
     input  aluop_type_e ALUOp,
     input  funct3_e     funct3,
     input  funct7_e     funct7,

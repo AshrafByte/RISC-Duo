@@ -17,7 +17,7 @@ module DataPath (
     input  imm_j_raw_t  imm_j_raw,
 
     // === Control Signals ===
-  input  logic [1:0]       PCSrc,
+    input  logic [1:0]  PCSrc,
     input  resultsrc_e  ResultSrc,
     input  aluop_e      ALUControl,
     input  logic        ALUSrc,
@@ -28,10 +28,10 @@ module DataPath (
     input  word_t       ReadData,
 
     // === Outputs ===
-    output word_t       PC,
-    output logic        Zero,
-    output signed_word_t       ALUResult,
-    output word_t       WriteData
+    output word_t           PC,
+    output logic            Zero,
+    output signed_word_t    ALUResult,
+    output word_t           WriteData
 );
 
     // ==================================================
@@ -39,7 +39,7 @@ module DataPath (
     // ==================================================
     word_t PCNext, PCTarget, PCPlus4, Result, SrcB, PCReg;
     signed_word_t ImmExt;
-  
+
     word_t imm_mux_in    [4];
     word_t alu_mux_in    [2];
     word_t result_mux_in [4];
@@ -82,7 +82,7 @@ module DataPath (
     assign pc_mux_in[1] = PCTarget;
     assign pc_mux_in[2] = ALUResult;
 
-  mux #(.SEL_WIDTH(2)) pc_mux (
+    mux #(.SEL_WIDTH(2)) pc_mux (
         .in(pc_mux_in),
         .sel(PCSrc),
         .out(PCNext)

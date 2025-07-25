@@ -3,21 +3,18 @@
 import types_pkg::*;
 
 module data_mem(
-        input logic clk, write_enable,
-        input address_t data_address,
-        input word_t write_data,
-        
-        output word_t read_data
-    );
+    input logic clk, write_enable,
+    input address_t data_address,
+    input word_t write_data,
 
+    output word_t read_data
+);
 
     word_t data_memory [MEM_SIZE];
     assign read_data = data_memory[data_address];
 
     always_ff@(posedge clk)
-        if(write_enable) data_memory[data_address] <= write_data;
-    
-
+    if(write_enable) data_memory[data_address] <= write_data;
 
     // always_ff@(posedge clk)begin
     //     if(write_enable)

@@ -22,14 +22,14 @@ module Controller (
         .ALUOp(ALUOp),
         .control_signals(control_signals)
     );
-     
+
     alu_decoder alu_decoder_instance (
         .op(op),
         .ALUOp(ALUOp),
         .funct3(funct3),
         .funct7(funct7),
-        
+
         .ALUControl(ALUControl)
     );
-    
+
 endmodule
