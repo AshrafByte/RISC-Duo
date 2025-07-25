@@ -52,8 +52,8 @@ module DataPath (
     word_t result_mux_in [4];
     word_t pc_mux_in     [2];
     logic jump_mux_in    [2];
-    // for the PC register
-    word_t PC;
+    address_t PC;
+    address_t address;
 
     // ==================================================
     // Internal Wires for pipeline registers
@@ -297,10 +297,12 @@ module DataPath (
     // ==================================================
     // Memory Stage
     // ==================================================
+
+    assign address = m.ALUResultM; // to match the size of the memory address
     data_mem DataMemory (
         .clk(clk),
         .write_enable(m.MemWriteM),
-        .data_address(m.ALUResultM),
+        .data_address(address),
         .write_data(m.WriteDataM),
         .read_data(m.ReadDataM)
     );
