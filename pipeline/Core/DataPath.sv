@@ -51,7 +51,6 @@ module DataPath (
     word_t alu_mux_in    [2];
     word_t result_mux_in [4];
     word_t pc_mux_in     [2];
-    logic jump_mux_in    [2];
     address_t PC;
     address_t address;
 
@@ -171,7 +170,7 @@ module DataPath (
         .pc(PC)
     );
 
-    assign PC = f.PCF[ADDR_WIDTH-1:0];
+    assign f.PCF[ADDR_WIDTH-1:0] = PC;
 
     instr_mem InstructionMemory (
         .clk(clk),
