@@ -165,7 +165,7 @@ module DataPath (
         .clk(clk),
         .reset(reset),
         .enable(StallF_bar),
-        .PCNext(f.PCNextF[]address_t-1:0), // Ensure the size matches address_t
+        .PCNext(f.PCNextF[address_t-1:0]), // Ensure the size matches address_t
         .pc(PC)
     );
 
