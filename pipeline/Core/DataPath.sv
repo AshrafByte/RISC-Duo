@@ -105,7 +105,7 @@ module DataPath (
     pipo #(REG_ADDR_WIDTH) stage2_Rs1 (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(Rs1D), .out(Rs1E));
     pipo #(REG_ADDR_WIDTH) stage2_Rs2 (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(Rs2D), .out(Rs2E));
     pipo #(REG_ADDR_WIDTH) stage2_Rd (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.RdD), .out(RdE));
-    pipo #(REG_ADDR_WIDTH) stage2_ImmExt (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.ImmExtD), .out(e.ImmExtE));
+    pipo #(XLEN) stage2_ImmExt (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.ImmExtD), .out(e.ImmExtE));
     pipo #(XLEN) stage2_PCPlus4 (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.PCPlus4D), .out(e.PCPlus4E));
 
     pipo #(1) stage2_RegWrite (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.RegWriteD), .out(e.RegWriteE));
@@ -167,11 +167,11 @@ module DataPath (
         .clk(clk),
         .reset(reset),
         .enable(StallF_bar),
-        .PCNext(f.PCNextF),
-        .pc(f.PCF)
+        .PCNext(f.PCNextF[address_t-1:0]), // Ensure the size matches address_t
+        .pc(PC)
     );
 
-    assign PC = f.PCF;
+    assign PC = f.PCF[address_t-1:0];
 
     instr_mem InstructionMemory (
         .clk(clk),
