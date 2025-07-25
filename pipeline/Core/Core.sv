@@ -1,3 +1,5 @@
+/*
+
 
 // `default_nettype none
 import types_pkg::*;
@@ -69,3 +71,5 @@ module Core(
     assign MemWrite = cs.MemWrite;
 
 endmodule
+
+*/
