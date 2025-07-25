@@ -52,8 +52,8 @@ module DataPath (
     word_t result_mux_in [4];
     word_t pc_mux_in     [2];
     logic jump_mux_in    [2];
-    // for the PC register
-    word_t PC;
+    address_t PC;
+    address_t address;
 
     // ==================================================
     // Internal Wires for pipeline registers
@@ -112,7 +112,7 @@ module DataPath (
     pipo #(2) stage2_ResultSrc (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.ResultSrcD), .out(e.ResultSrcE));
     pipo #(1) stage2_MemWrite (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.MemWriteD), .out(e.MemWriteE));
     //pipo #(1) stage2_Jump (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.JumpD), .out(e.JumpE));
-    pipo #(1) stage2_Branch (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.BranchD), .out(e.BranchE));
+    //pipo #(1) stage2_Branch (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.BranchD), .out(e.BranchE));
     pipo #(4) stage2_ALUControl (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.ALUControlD), .out(e.ALUControlE));
     pipo #(1) stage2_ALUSrc (.clk(clk), .rst(FlushE), .enable(stage_enable), .in(d.ALUSrcD), .out(e.ALUSrcE));
 
@@ -139,8 +139,8 @@ module DataPath (
     // Program Counter (PC) Logic + instruction fetch in Stage 1
     // ==================================================
 
-    assign jump_mux_in[0] = f.InstrF; // Normal instruction fetch
-    assign jump_mux_in[1] = 1'b0;
+    // assign jump_mux_in[0] = f.InstrF; // Normal instruction fetch
+    // assign jump_mux_in[1] = 1'b0;
     // PC + 4
     adder pc_adder (
         .a(f.PCF),
@@ -151,6 +151,7 @@ module DataPath (
     // Select next PC value
     assign pc_mux_in[0] = f.PCPlus4F;
     assign pc_mux_in[1] = e.PCTargetE;
+
 
     mux #(.SEL_WIDTH(1)) pc_mux (
         .in(pc_mux_in),
@@ -176,11 +177,11 @@ module DataPath (
         .instruction(f.InstrF)
     );
 
-    mux #(.SEL_WIDTH(1)) jump_mux (
-        .in(jump_mux_in),
-        .sel(d.JumpD),
-        .out(f.InstrF)
-    );
+    // mux #(.SEL_WIDTH(1)) jump_mux (
+    //     .in(jump_mux_in),
+    //     .sel(d.JumpD),
+    //     .out(f.InstrF)
+    // );
 
 
     // ==================================================
@@ -296,10 +297,12 @@ module DataPath (
     // ==================================================
     // Memory Stage
     // ==================================================
+
+    assign address = m.ALUResultM; // to match the size of the memory address
     data_mem DataMemory (
         .clk(clk),
         .write_enable(m.MemWriteM),
-        .data_address(m.ALUResultM),
+        .data_address(address),
         .write_data(m.WriteDataM),
         .read_data(m.ReadDataM)
     );
