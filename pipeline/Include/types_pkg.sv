@@ -187,8 +187,6 @@
         logic [1:0] ImmSrcD     ;
         logic [1:0] ResultSrcD  ;
         logic MemWriteD         ;
-        logic JumpD             ; //Was missing
-        logic BranchD           ; //was missing
     } decoding_stage_t;
 
     typedef struct packed {
@@ -196,8 +194,6 @@
         logic [1:0] ResultSrcE  ;
         logic MemWriteE         ;
         logic ALUSrcE           ;
-        logic JumpE             ;
-        logic BranchE           ;
         logic [1:0] ALUOpE      ;
         logic ZeroE             ;
         aluop_e  ALUControlE    ;
