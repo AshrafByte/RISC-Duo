@@ -26,7 +26,7 @@
 ../Utils/mux.sv
 #../Utils/sign_ext.sv
 #../Utils/zero_ext.sv
-../Utils/ext.sv
+../Utils/extension.sv
 
 ../InstructionLoader.sv
 ../testbench.sv

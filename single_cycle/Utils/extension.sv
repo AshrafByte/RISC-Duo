@@ -1,7 +1,7 @@
 //
 // `default_nettype none
 import types_pkg::*;
-module Extension #(parameter int WIDTI_IN = 16, 
+module extension #(parameter int WIDTI_IN = 16, 
                    parameter int WIDTI_OUT = 32) (
     input  logic [WIDTI_IN-1:0] in,
     input  logic shift,
