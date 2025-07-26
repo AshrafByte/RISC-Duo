@@ -92,9 +92,9 @@ module DataPath (
     //====================================================
 
     //Stage 1:
-    pipo #(XLEN) stage1_PC (.clk(clk), .rst(FlushD), .enable(!StallD_bar), .in(f.PCF), .out(d.PCD)) ;
-    pipo #(XLEN) stage1_PCPlus4(.clk(clk), .rst(FlushD), .enable(!StallD_bar), .in(f.PCPlus4F), .out(d.PCPlus4D));
-    pipo #(XLEN) stage1_Instr(.clk(clk), .rst(FlushD), .enable(!StallD_bar), .in(f.InstrF), .out(d.InstrD));
+    pipo #(XLEN) stage1_PC (.clk(clk), .rst(0), .enable(StallD_bar), .in(f.PCF), .out(d.PCD)) ;//FlushD
+    pipo #(XLEN) stage1_PCPlus4(.clk(clk), .rst(0), .enable(StallD_bar), .in(f.PCPlus4F), .out(d.PCPlus4D));
+    pipo #(XLEN) stage1_Instr(.clk(clk), .rst(0), .enable(StallD_bar), .in(f.InstrF), .out(d.InstrD));
     //pipo #(XLEN) stage1_PCNext(.clk(clk), .rst(reset), .enable(enable), .in(f.InstrF), .out()) //???
 
     //Stage 2:
@@ -167,14 +167,14 @@ module DataPath (
         .reset(reset),
         .enable(StallF_bar),
         .PCNext(f.PCNextF[ADDR_WIDTH-1:0]), // Ensure the size matches address_t
-        .pc(PC)
+        .pc(f.PCF[ADDR_WIDTH-1:0])
     );
 
-    assign f.PCF[ADDR_WIDTH-1:0] = PC;
+    //assign f.PCF[ADDR_WIDTH-1:0] = PC;
 
     instr_mem InstructionMemory (
         .clk(clk),
-        .address(PC),
+        .address(f.PCF[ADDR_WIDTH-1:0]),
         .instruction(f.InstrF)
     );
 
